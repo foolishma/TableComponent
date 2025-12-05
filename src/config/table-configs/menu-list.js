@@ -2,6 +2,19 @@
  * 菜单列表表格配置文件
  */
 export default {
+  // API 配置（必填）
+  // 组件会自动请求数据，无需在父组件中手动加载数据
+  // 支持 GET、POST、PUT、DELETE 等方法
+  // 响应数据格式支持：
+  // 1. { data: [], total: 0 }
+  // 2. { list: [], total: 0 }
+  // 3. { records: [], total: 0 }
+  // 4. 直接是数组 []
+  api: {
+    url: '/api/menu/list',
+    method: 'get' // 'get' | 'post' | 'put' | 'delete'，默认为 'get'
+  },
+
   // 查询条件配置
   queryConditions: [
     {
@@ -165,6 +178,15 @@ export default {
     // true: 表格高度按内容展开，最高占满剩余空间，内容超出则内容区滚动（默认）
     // false: 占满屏幕高度剩余空间
     autoHeight: true,
+
+    // 是否显示分页器（默认 true）
+    showPagination: true,
+
+    // 是否显示序号列（默认 true）
+    showIndex: true,
+
+    // 是否显示操作列（默认 true）
+    showAction: true,
 
     // 行选择配置
     selection: {

@@ -4,7 +4,7 @@
       <template #header>
         <div class="flex items-center justify-between">
           <span class="text-lg font-semibold">组件演示页面</span>
-          <el-tag type="warning">Components Demo</el-tag>
+          <el-tag type="warning">组件演示</el-tag>
         </div>
       </template>
 

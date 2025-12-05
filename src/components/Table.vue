@@ -1,5 +1,5 @@
 <template>
-  <div class="table-container">
+  <div v-loading="tableLoading" element-loading-text="数据加载中..." class="table-container">
     <!-- 筛选条件区域 -->
     <el-card v-if="queryConditions.length > 0" shadow="hover" class="mb-4">
       <el-row :gutter="20">
@@ -83,10 +83,11 @@
 
         <!-- 操作按钮列：展开更多、查询、重置 -->
         <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-          <div class="mb-4 flex items-center justify-start">
-            <!-- 查询/重置按钮 -->
-            <el-button @click="handleReset">重置</el-button>
+          <div class="mb-4 flex items-center justify-start space-x-2">
+            <!-- 查询按钮 -->
             <el-button type="primary" @click="handleQuery">查询</el-button>
+            <!-- 重置按钮 -->
+            <el-button @click="handleReset">重置</el-button>
             <!-- 展开/收起按钮 -->
             <el-button v-if="hasMoreConditions" link type="primary" @click="toggleExpand">
               {{ isExpanded ? '收起' : '展开' }}
@@ -117,13 +118,12 @@
       </div>
       <el-table
         ref="tableRef"
-        :data="data"
-        :loading="loading"
-        :stripe="tableConfig.stripe"
-        :border="tableConfig.border"
+        :data="tableData"
+        :stripe="tableConfigComputed.stripe"
+        :border="tableConfigComputed.border"
         :height="computedTableHeight"
         :max-height="computedMaxHeight"
-        :fit="tableConfig.fit !== false"
+        :fit="tableConfigComputed.fit !== false"
         style="width: 100%"
         @selection-change="handleSelectionChange"
         @row-click="handleRowClick"
@@ -150,6 +150,7 @@
 
         <!-- 序号列 -->
         <el-table-column
+          v-if="showIndex"
           type="index"
           label="序号"
           width="60"
@@ -206,7 +207,7 @@
 
         <!-- 操作列 -->
         <el-table-column
-          v-if="actionColumn"
+          v-if="showAction && actionColumn"
           :label="actionColumn.label"
           :width="actionColumn.width"
           :fixed="actionColumn.fixed"
@@ -255,7 +256,7 @@
       </el-table>
 
       <!-- 分页 -->
-      <div v-if="pagination" class="mt-4 flex items-center justify-between">
+      <div v-if="showPagination" class="mt-4 flex items-center justify-between">
         <div class="text-gray-600">
           共 <strong>{{ pagination.total }}</strong> 条数据
         </div>
@@ -274,10 +275,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { ArrowDown, ArrowUp } from '@element-plus/icons-vue'
+import { useTableConfig } from './hooks/useTableConfig'
 
 // Props
 const props = defineProps({
@@ -285,33 +286,47 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  data: {
-    type: Array,
-    default: () => []
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
   functionMap: {
     type: Object,
     default: () => ({})
-  },
-  pagination: {
-    type: Object,
-    default: null
   }
 })
 
-// Emits
+// Emits（保留部分事件供外部监听，但内部会自动处理）
 const emit = defineEmits([
   'selection-change',
   'row-click',
+  'data-loaded',
+  'data-error',
   'query',
-  'reset',
-  'page-change',
-  'size-change'
+  'reset'
 ])
+
+// 使用配置 Hook（传入响应式的 config）
+const {
+  apiConfig,
+  queryConditions,
+  queryValues,
+  buildQueryParams,
+  resetQueryValues,
+  getLabelSuffix,
+  tableConfig: tableConfigComputed,
+  selectionConfig,
+  topButtons,
+  tableCardStyle,
+  getTableHeight,
+  getMaxHeight,
+  showPagination,
+  showIndex,
+  showAction,
+  dataColumns,
+  actionColumn,
+  getIcon,
+  getOptions,
+  isDateType
+} = useTableConfig(computed(() => props.config))
+
+// 组件内部状态
 const tableRef = ref(null)
 const tableCardRef = ref(null)
 const isExpanded = ref(false)
@@ -319,19 +334,25 @@ const selectedRow = ref(null)
 const selectedRows = ref([])
 const tableCardHeight = ref(null)
 
-// 查询条件
-const queryConditions = computed(() => props.config.queryConditions || [])
-const queryValues = ref({})
+// 内部数据状态
+const internalData = ref([])
+const internalLoading = ref(false)
 
-// 初始化查询条件值
-queryConditions.value.forEach((condition) => {
-  queryValues.value[condition.prop] =
-    condition.defaultValue !== undefined
-      ? condition.defaultValue
-      : condition.type?.includes('range')
-        ? []
-        : ''
+// 内部分页状态（表格内部实现）
+const internalPagination = ref({
+  currentPage: 1,
+  pageSize: 10,
+  total: 0,
+  pageSizes: [10, 20, 50, 100],
+  layout: 'total, sizes, prev, pager, next, jumper'
 })
+
+// 表格数据和加载状态
+const tableData = computed(() => internalData.value)
+const tableLoading = computed(() => internalLoading.value)
+
+// 分页对象
+const pagination = computed(() => internalPagination.value)
 
 // 可见的筛选条件
 const visibleConditions = computed(() => {
@@ -346,123 +367,146 @@ const hasMoreConditions = computed(() => {
   return queryConditions.value.length > 6
 })
 
-// 表格配置
-const tableConfig = computed(() => props.config.tableConfig || {})
-const selectionConfig = computed(() => tableConfig.value.selection || {})
-const topButtons = computed(() => tableConfig.value.topButtons || [])
-const autoHeight = computed(() => tableConfig.value.autoHeight !== false) // 默认为 true
-
-// 计算表格卡片样式
-const tableCardStyle = computed(() => {
-  if (!autoHeight.value) {
-    // autoHeight 为 false 时，占满剩余空间
-    return {
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column'
-    }
-  }
-  // autoHeight 为 true 时，自适应内容高度
-  return {
-    display: 'flex',
-    flexDirection: 'column'
-  }
-})
-
 // 计算表格高度
 const computedTableHeight = computed(() => {
-  if (autoHeight.value) {
-    // autoHeight 为 true 时，不设置固定高度，让内容自然展开
-    return undefined
-  }
-  // autoHeight 为 false 时，使用配置的高度或计算剩余空间
-  return tableConfig.value.height || '100%'
+  return getTableHeight(tableCardHeight.value)
 })
 
 // 计算表格最大高度
 const computedMaxHeight = computed(() => {
-  if (autoHeight.value) {
-    // autoHeight 为 true 时，最大高度为剩余空间，超出则滚动
-    if (tableCardHeight.value) {
-      // 减去顶部按钮区域高度（如果有）和分页区域高度
-      const topButtonsHeight = topButtons.value.length > 0 ? 50 : 0
-      const paginationHeight = props.pagination ? 60 : 0
-      return tableCardHeight.value - topButtonsHeight - paginationHeight - 40 // 40 是卡片内边距
-    }
-    return tableConfig.value.maxHeight
-  }
-  // autoHeight 为 false 时，使用配置的最大高度
-  return tableConfig.value.maxHeight
+  return getMaxHeight(tableCardHeight.value, showPagination.value)
 })
-
-// 表格列
-const columns = computed(() => props.config.columns || [])
-const dataColumns = computed(() => {
-  return columns.value.filter((col) => col.type !== 'action')
-})
-const actionColumn = computed(() => {
-  return columns.value.find((col) => col.type === 'action')
-})
-
-// 获取图标
-const getIcon = (iconName) => {
-  return ElementPlusIconsVue[iconName] || null
-}
-
-// 获取选项
-const getOptions = (condition) => {
-  if (condition.options) {
-    return condition.options
-  }
-  // 这里可以集成字典服务
-  return []
-}
-
-// 判断是否为日期类型
-const isDateType = (type) => {
-  return [
-    'date',
-    'daterange',
-    'datetime',
-    'datetimerange',
-    'year',
-    'month',
-    'yearrange',
-    'monthrange'
-  ].includes(type)
-}
 
 // 切换展开/收起
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value
 }
 
-// 查询
-const handleQuery = () => {
-  const params = {}
-  Object.keys(queryValues.value).forEach((key) => {
-    const value = queryValues.value[key]
-    if (value !== '' && value !== null && value !== undefined) {
-      if (Array.isArray(value) && value.length === 0) {
-        return
-      }
-      params[key] = value
+// API 请求函数
+const fetchData = async (queryParams = {}) => {
+  if (!apiConfig.value) {
+    return
+  }
+
+  internalLoading.value = true
+  try {
+    const api = apiConfig.value
+    const method = (api.method || 'get').toLowerCase()
+    const url = api.url
+
+    if (!url) {
+      ElMessage.error('API 配置错误：缺少 url')
+      return
     }
-  })
-  emit('query', params)
+
+    // 构建请求参数
+    const requestParams = {
+      ...queryParams
+    }
+
+    // 如果有分页，添加分页参数
+    if (pagination.value) {
+      requestParams.page = pagination.value.currentPage || 1
+      requestParams.pageSize = pagination.value.pageSize || 10
+    }
+
+    // 获取自定义请求函数（如果通过 functionMap 传入）
+    const customRequest = props.functionMap?.request || null
+
+    let response
+
+    if (customRequest) {
+      // 使用自定义请求函数
+      response = await customRequest({
+        url,
+        method,
+        params: method === 'get' ? requestParams : undefined,
+        data: method !== 'get' ? requestParams : undefined
+      })
+    } else {
+      // 使用封装的表格请求 API
+      const { tableRequest } = await import('@/api/table')
+      response = await tableRequest({
+        url,
+        method,
+        params: method === 'get' ? requestParams : undefined,
+        data: method !== 'get' ? requestParams : undefined
+      })
+    }
+
+    // 处理响应数据
+    // 支持多种响应格式：
+    // 1. { data: [], total: 0 }
+    // 2. { list: [], total: 0 }
+    // 3. { records: [], total: 0 }
+    // 4. 直接是数组 []
+    let data = []
+    let total = 0
+
+    if (Array.isArray(response)) {
+      data = response
+      total = response.length
+    } else if (response.data) {
+      data = Array.isArray(response.data) ? response.data : []
+      total = response.total || response.data.length || 0
+    } else if (response.list) {
+      data = Array.isArray(response.list) ? response.list : []
+      total = response.total || response.list.length || 0
+    } else if (response.records) {
+      data = Array.isArray(response.records) ? response.records : []
+      total = response.total || response.records.length || 0
+    } else {
+      data = []
+      total = 0
+    }
+
+    internalData.value = data
+
+    // 更新分页总数
+    if (pagination.value) {
+      pagination.value.total = total
+    }
+
+    // 触发数据加载完成事件
+    emit('data-loaded', { data, total, response })
+  } catch (error) {
+    console.error('API 请求失败:', error)
+    ElMessage.error(error.message || '数据加载失败')
+    internalData.value = []
+    emit('data-error', error)
+  } finally {
+    internalLoading.value = false
+  }
+}
+
+// 查询
+const handleQuery = async () => {
+  try {
+    const params = buildQueryParams()
+    // 重置到第一页
+    pagination.value.currentPage = 1
+    await fetchData(params)
+    // 查询成功后触发事件
+    emit('query', params)
+  } catch (error) {
+    console.error('查询失败:', error)
+  }
 }
 
 // 重置
-const handleReset = () => {
-  queryConditions.value.forEach((condition) => {
-    queryValues.value[condition.prop] =
-      condition.defaultValue !== undefined
-        ? condition.defaultValue
-        : condition.type?.includes('range')
-          ? []
-          : ''
-  })
-  emit('reset')
+const handleReset = async () => {
+  try {
+    // 重置查询条件
+    resetQueryValues()
+    // 重置到第一页
+    pagination.value.currentPage = 1
+    // 重置后自动查询
+    await fetchData()
+    // 重置成功后触发事件
+    emit('reset')
+  } catch (error) {
+    console.error('重置失败:', error)
+  }
 }
 
 // 选择变化
@@ -582,27 +626,45 @@ const getButtonDisabled = (button, row) => {
 
 // 分页变化
 const handlePageChange = (page) => {
-  emit('page-change', page)
+  pagination.value.currentPage = page
+  const params = buildQueryParams()
+  fetchData(params)
 }
 
 // 每页数量变化
 const handleSizeChange = (size) => {
-  emit('size-change', size)
+  pagination.value.pageSize = size
+  pagination.value.currentPage = 1
+  const params = buildQueryParams()
+  fetchData(params)
 }
 
-// 获取 label 后缀
-const getLabelSuffix = (condition) => {
-  // 如果 openLabelSuffix 为 false，不显示后缀
-  if (condition.openLabelSuffix === false) {
-    return ''
-  }
-  // 如果配置了 labelSuffix，使用 labelSuffix 的值
-  if (condition.labelSuffix !== undefined && condition.labelSuffix !== null) {
-    return condition.labelSuffix
-  }
-  // 如果 openLabelSuffix 为 true 或未设置，使用默认值 ':'
-  return ':'
+// 重新加载数据
+const reload = () => {
+  const params = buildQueryParams()
+  fetchData(params)
 }
+
+// 生命周期：组件挂载时自动请求数据
+onMounted(() => {
+  fetchData()
+})
+
+// 暴露给父组件的方法和属性
+defineExpose({
+  // 选中的行
+  selectedRows,
+  // 上次查询参数 form 对象
+  queryValues,
+  // 重新加载数据方法
+  reload,
+  // 查询方法
+  query: handleQuery,
+  // 重置方法
+  reset: handleReset,
+  // 表格实例引用
+  tableRef
+})
 </script>
 
 <style scoped>

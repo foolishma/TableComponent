@@ -4,7 +4,7 @@
       <template #header>
         <div class="flex items-center justify-between">
           <span class="text-lg font-semibold">表格演示页面</span>
-          <el-tag type="primary">Table Demo</el-tag>
+          <el-tag type="primary">表格演示</el-tag>
         </div>
       </template>
 
@@ -12,7 +12,7 @@
         <div class="flex items-center justify-between">
           <el-input
             v-model="searchText"
-            placeholder="搜索用户..."
+            placeholder="搜索用户"
             style="width: 300px"
             clearable
             @input="handleSearch"

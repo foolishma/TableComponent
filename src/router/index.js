@@ -60,7 +60,7 @@ const router = createRouter({
 // 路由守卫 - 设置页面标题
 router.beforeEach((to, from, next) => {
   if (to.meta.title) {
-    document.title = `${to.meta.title} - Vue 3.5 Demo`
+    document.title = `${to.meta.title} - 表格组件系统`
   }
   next()
 })

@@ -4,7 +4,7 @@
       <template #header>
         <div class="flex items-center justify-between">
           <span class="text-lg font-semibold">表单演示页面</span>
-          <el-tag type="success">Form Demo</el-tag>
+          <el-tag type="success">表单演示</el-tag>
         </div>
       </template>
 
