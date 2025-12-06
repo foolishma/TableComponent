@@ -319,18 +319,35 @@ npm run lint
 npm run format
 ```
 
-### VS Code 配置
+### VS Code/Cursor 配置
 
 项目已配置 `.vscode/settings.json`，支持：
 
-- ✅ 保存时自动修复 ESLint 错误
-- ✅ 保存时自动格式化代码
-- ✅ 使用 Prettier 作为默认格式化程序
+- ✅ **保存时自动格式化代码** - 使用 Prettier 自动格式化
+- ✅ **保存时自动修复 ESLint 错误** - 自动修复可修复的问题
+- ✅ **统一代码风格** - 2 空格缩进、单引号、无分号等
+- ✅ **支持多种文件类型** - `.js`, `.vue`, `.json`, `.css`, `.scss`, `.html`, `.md` 等
 
 **需要安装的扩展**：
 
-- ESLint (dbaeumer.vscode-eslint)
-- Prettier - Code formatter (esbenp.prettier-vscode)
+- **Prettier - Code formatter** (`esbenp.prettier-vscode`) - 代码格式化工具
+- **ESLint** (`dbaeumer.vscode-eslint`) - JavaScript/TypeScript 代码检查
+- **Volar** (`vue.volar`) - Vue 3 官方语言支持（必需）
+
+**扩展安装方式**：
+
+1. 打开 VS Code/Cursor
+2. 按 `Ctrl+Shift+P` 打开命令面板
+3. 输入 `Extensions: Show Recommended Extensions`
+4. 点击安装推荐的扩展
+
+或者打开扩展面板 (`Ctrl+Shift+X`)，搜索扩展名称并安装。
+
+**使用说明**：
+
+- 编辑代码后，直接保存文件 (`Ctrl+S`) 即可自动格式化和修复
+- 手动格式化：`Shift+Alt+F` (Windows/Linux) 或 `Shift+Option+F` (Mac)
+- 详细配置说明请查看：[编辑器配置说明](./docs/编辑器配置说明.md)
 
 ## 📖 文档
 

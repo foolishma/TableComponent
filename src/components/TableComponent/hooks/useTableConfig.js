@@ -1,5 +1,5 @@
-import { ref, computed, watch } from 'vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { computed, ref, watch } from 'vue'
 
 /**
  * Table 组件配置 Hook
@@ -25,6 +25,13 @@ export function useTableConfig(config) {
     return api
   })
 
+  // ========== 工具函数（需要在前面定义，供后续函数使用）==========
+  // 判断是否为范围类型（日期范围或数字范围）
+  const isRangeType = (type) => {
+    if (!type) return false
+    return type.includes('range') || type === 'numberrange' || type === 'numberRange'
+  }
+
   // ========== 查询条件配置 ==========
   const queryConditions = computed(() => configRef.value?.queryConditions || [])
   const queryValues = ref({})
@@ -33,12 +40,15 @@ export function useTableConfig(config) {
   const initQueryValues = () => {
     queryValues.value = {}
     queryConditions.value.forEach((condition) => {
-      queryValues.value[condition.prop] =
-        condition.defaultValue !== undefined
-          ? condition.defaultValue
-          : condition.type?.includes('range')
-            ? []
-            : ''
+      if (condition.defaultValue !== undefined) {
+        queryValues.value[condition.prop] = condition.defaultValue
+      } else if (isRangeType(condition.type)) {
+        // 范围类型初始化为空数组
+        queryValues.value[condition.prop] = []
+      } else {
+        // 其他类型初始化为空字符串
+        queryValues.value[condition.prop] = ''
+      }
     })
   }
 
@@ -51,30 +61,74 @@ export function useTableConfig(config) {
     { immediate: true, deep: true }
   )
 
-  // 构建查询参数
-  const buildQueryParams = () => {
+  // 构建查询参数（包含查询条件和分页参数）
+  const buildQueryParams = (paginationInfo = null) => {
     const params = {}
-    Object.keys(queryValues.value).forEach((key) => {
-      const value = queryValues.value[key]
-      if (value !== '' && value !== null && value !== undefined) {
-        if (Array.isArray(value) && value.length === 0) {
+
+    // 处理查询条件参数
+    queryConditions.value.forEach((condition) => {
+      const prop = condition.prop
+      const value = queryValues.value[prop]
+
+      // 跳过空值
+      if (value === '' || value === null || value === undefined) {
+        return
+      }
+
+      // 处理范围类型（时间范围或数字范围）
+      if (isRangeType(condition.type) && Array.isArray(value)) {
+        // 如果数组为空，跳过
+        if (value.length === 0) {
           return
         }
-        params[key] = value
+
+        // 如果配置了自定义的开始/结束字段，使用自定义字段
+        const startField = condition.startField || `${prop}Start`
+        const endField = condition.endField || `${prop}End`
+
+        // 范围值数组 [start, end]
+        const [startValue, endValue] = value
+
+        // 只有当开始值和结束值都存在时才添加参数
+        if (startValue !== null && startValue !== undefined && startValue !== '') {
+          params[startField] = startValue
+        }
+        if (endValue !== null && endValue !== undefined && endValue !== '') {
+          params[endField] = endValue
+        }
+      } else if (Array.isArray(value)) {
+        // 非范围类型的数组，如果为空则跳过
+        if (value.length === 0) {
+          return
+        }
+        params[prop] = value
+      } else {
+        // 普通类型，直接赋值
+        params[prop] = value
       }
     })
+
+    // 添加分页参数（如果提供了分页信息）
+    if (paginationInfo && Object.keys(paginationInfo).length > 0) {
+      params.page = paginationInfo.currentPage || 1
+      params.pageSize = paginationInfo.pageSize || 10
+    }
+
     return params
   }
 
   // 重置查询条件
   const resetQueryValues = () => {
     queryConditions.value.forEach((condition) => {
-      queryValues.value[condition.prop] =
-        condition.defaultValue !== undefined
-          ? condition.defaultValue
-          : condition.type?.includes('range')
-            ? []
-            : ''
+      if (condition.defaultValue !== undefined) {
+        queryValues.value[condition.prop] = condition.defaultValue
+      } else if (isRangeType(condition.type)) {
+        // 范围类型重置为空数组
+        queryValues.value[condition.prop] = []
+      } else {
+        // 其他类型重置为空字符串
+        queryValues.value[condition.prop] = ''
+      }
     })
   }
 
@@ -91,6 +145,11 @@ export function useTableConfig(config) {
 
   // ========== 表格配置 ==========
   const tableConfigComputed = computed(() => configRef.value?.tableConfig || {})
+
+  // 行唯一标识配置（从配置中读取，默认为 'id'）
+  const rowKey = computed(() => {
+    return tableConfigComputed.value.rowKey || 'id'
+  })
 
   // 是否显示分页器（从配置中读取，默认为 true）
   const showPagination = computed(() => {
@@ -207,6 +266,7 @@ export function useTableConfig(config) {
 
     // 表格配置
     tableConfig: tableConfigComputed,
+    rowKey,
     selectionConfig,
     topButtons,
     autoHeight,
@@ -227,6 +287,7 @@ export function useTableConfig(config) {
     // 工具函数
     getIcon,
     getOptions,
-    isDateType
+    isDateType,
+    isRangeType
   }
 }

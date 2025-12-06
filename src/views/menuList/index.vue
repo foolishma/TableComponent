@@ -1,6 +1,6 @@
 <template>
   <div class="menu-list-page">
-    <TableComponent ref="tableRef" :config="tableConfig" :function-map="functionMap">
+    <TableComponent ref="tableRef" :config="menuConfig" :function-map="functionMap">
       <!-- 自定义图标列 -->
       <template #icon="{ row }">
         <el-icon v-if="row.icon" :size="20">
@@ -13,16 +13,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import TableComponent from '@/components/Table.vue'
+import TableComponent from '@/components/TableComponent/index.vue'
 import menuConfig from '@/config/table-configs/menu-list.js'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref } from 'vue'
 
 const tableRef = ref(null)
-
-// 表格配置（直接使用配置文件）
-const tableConfig = ref(menuConfig)
 
 // 获取图标
 const getIcon = (iconName) => {

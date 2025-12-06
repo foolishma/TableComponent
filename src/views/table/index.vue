@@ -104,9 +104,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { Delete, Download, Edit, Plus, Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Plus, Download, Edit, Delete } from '@element-plus/icons-vue'
+import { onMounted, ref } from 'vue'
 const searchText = ref('')
 const tableData = ref([])
 const selectedRows = ref([])

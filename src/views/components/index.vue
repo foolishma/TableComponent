@@ -171,9 +171,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { Delete, Edit, Message, Search, Star } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
-import { Search, Edit, Message, Star, Delete } from '@element-plus/icons-vue'
+import { ref } from 'vue'
 const activeTab = ref('buttons')
 const innerTab = ref('first')
 const dynamicPercentage = ref(10)

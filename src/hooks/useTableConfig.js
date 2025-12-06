@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue'
+import { reactive, ref } from 'vue'
 
 /**
  * Table 配置解析 Hook

@@ -118,6 +118,7 @@ export default {
     border: true, // 是否显示边框（可选）
     height: 'auto', // 表格高度（可选）
     maxHeight: 600, // 最大高度（可选）
+    rowKey: 'id', // 行数据的唯一标识（可选，默认为 'id'），支持字符串或函数：(row) => string | number
 
     // 行选择配置
     selection: {

@@ -1,0 +1,151 @@
+---
+alwaysApply: true
+---
+
+## 动态规则配置
+
+### 添加规则指令
+
+当用户输入 **"添加规则："** 时，需要执行以下操作：
+
+1. **识别规则内容**：提取冒号（:）后面的所有文本作为待添加的规则内容
+2. **润色优化**：
+   - 检查语法和拼写错误
+   - 优化表达方式，使其清晰、准确、专业
+   - 确保规则描述完整，避免歧义
+   - 统一格式和风格，与现有规则保持一致
+   - 如果规则涉及代码，确保代码格式正确
+3. **写入文件**：将润色优化后的规则追加到 `.cursor\rules\global.mdc` 文件的末尾
+4. **格式要求**：
+   - 使用 Markdown 格式
+   - 如果规则有标题，使用适当的标题级别（##、### 等）
+   - 保持代码块的正确格式
+   - 确保规则与现有内容之间有适当的空行分隔
+
+### 示例
+
+**用户输入**：
+
+```
+添加规则：当修改代码时，必须保持原有功能的完整性，不能删除任何功能代码。
+```
+
+**处理后写入**：
+
+```markdown
+## 代码修改规范
+
+当修改代码时，必须保持原有功能的完整性，不能删除任何功能代码。所有修改都应该是增强性的，而非破坏性的。
+```
+
+### 注意事项
+
+- 如果规则内容为空或无效，应提示用户并提供帮助
+- 如果规则与现有规则冲突，应提醒用户并询问是否继续
+- 润色时保持原意的同时，提升表达的准确性和专业性
+- 确保规则符合项目的编码规范和最佳实践
+
+## 项目结构规范
+
+### 目录结构规范
+
+#### 页面文件组织
+
+- **路由页面位置**：所有路由页面必须放置在 `src/views` 目录下
+- **模块化组织**：按照功能模块创建页面目录，每个模块包含：
+  - `index.vue`：模块主页面文件
+  - `listConfig.js`：列表配置文件（如需要）
+  - `components/`：模块私有组件目录（如需要）
+
+**示例**：创建用户管理页面
+
+```
+src/views/user/
+  ├── index.vue          # 用户管理主页面
+  ├── listConfig.js      # 用户列表配置文件
+  └── components/        # 用户管理私有组件
+      └── UserForm.vue   # 用户表单组件
+```
+
+#### 文件命名规范
+
+- **模块文件命名**：采用**小驼峰式命名**（camelCase）
+  - 示例：`userList.js`、`orderConfig.js`、`menuList.js`
+
+- **组件文件命名**：采用**大驼峰式命名**（PascalCase）
+  - 示例：`UserForm.vue`、`OrderDialog.vue`、`MenuTree.vue`
+
+- **页面创建格式**：统一按照 `目录【功能/模块名】/index.vue` 格式创建
+  - 示例：`src/views/user/index.vue`、`src/views/order/index.vue`
+
+### 组件开发规范
+
+#### 组件传值规范
+
+- **父子组件传值**：一律采用 `v-model` 方式传递
+- **子组件接收**：使用 `defineModel()` 接收实现双向绑定
+- **禁止使用**：任何形式的 `update` 事件和函数
+  - ❌ 禁止：`@update:xxx`、`emit('update:xxx')`、`handleUpdate` 等
+  - ✅ 正确：`v-model:xxx="value"` + `defineModel('xxx')`
+
+**示例**：
+
+```vue
+<!-- 父组件 -->
+<ChildComponent v-model:user="userData" />
+
+<!-- 子组件 -->
+<script setup>
+const user = defineModel('user', {
+  type: Object,
+  required: true
+})
+</script>
+```
+
+#### Vue 文件编写规范
+
+- **语法形式**：所有 Vue 文件必须采用 `<script setup>` 语法糖形式编写代码
+- **禁止使用**：Options API 和普通 `<script>` 标签
+
+### 全局文件组织规范
+
+#### 文件分类与位置
+
+- **工具函数**：放置在 `src/utils/` 目录下
+  - 示例：`src/utils/format.js`、`src/utils/validate.js`
+
+- **Hook 文件**：统一放置在 `src/hooks/` 目录下
+  - 示例：`src/hooks/useTable.js`、`src/hooks/useForm.js`
+
+- **公共组件**：放置在 `src/components/` 目录下
+  - 示例：`src/components/TableComponent/`、`src/components/FormDialog/`
+
+- **API 封装**：统一放置在 `src/api/` 目录下，按照页面路径结构创建文件
+  - **规则**：
+    - 单层模块：`src/api/user.js`（对应 `src/views/user/`）
+    - 多层模块：`src/api/admin/user.js`（对应 `src/views/admin/user/`）
+  - **示例**：
+    - 用户模块 → `src/api/user.js`
+    - 管理员用户模块 → `src/api/admin/user.js`
+    - 订单模块 → `src/api/order.js`
+
+### 列表页开发规范
+
+#### 列表组件使用
+
+- **默认规则**：所有模块的列表页或新增列表页，除非特殊标注，否则一律使用 `src/components/TableComponent/index.vue` 组件实现
+- **特殊情况**：如需自定义列表组件，必须在项目文档中明确标注原因
+
+**示例**：
+
+```vue
+<template>
+  <TableComponent :config="tableConfig" :function-map="functionMap" />
+</template>
+
+<script setup>
+import TableComponent from '@/components/TableComponent/index.vue'
+import tableConfig from './listConfig.js'
+</script>
+```

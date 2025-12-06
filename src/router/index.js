@@ -1,11 +1,13 @@
+import Error403 from '@/views/403.vue'
+import Error404 from '@/views/404.vue'
+import Components from '@/views/components/index.vue'
+import Form from '@/views/form/index.vue'
+import Home from '@/views/home/index.vue'
+import MenuList from '@/views/menuList/index.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/views/Home.vue'
-import Table from '@/views/Table.vue'
-import Form from '@/views/Form.vue'
-import Components from '@/views/Components.vue'
-import MenuList from '@/views/MenuList.vue'
 
 const routes = [
+  // 静态路由 - 首页（默认展示）
   {
     path: '/',
     redirect: '/home'
@@ -15,31 +17,46 @@ const routes = [
     name: 'Home',
     component: Home,
     meta: {
-      title: '首页'
+      title: '首页',
+      icon: 'HomeFilled',
+      showInMenu: true,
+      order: 1
     }
   },
+  // 动态路由 - 组件模块（支持多级菜单）
   {
-    path: '/table',
-    name: 'Table',
-    component: Table,
+    path: '/components',
+    name: 'Components',
+    redirect: '/components/index',
     meta: {
-      title: '表格'
-    }
+      title: '组件',
+      icon: 'Box',
+      showInMenu: true,
+      order: 2
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'TableComponent',
+        component: Components,
+        meta: {
+          title: '组件',
+          icon: 'Grid',
+          showInMenu: true
+        }
+      }
+    ]
   },
+
   {
     path: '/form',
     name: 'Form',
     component: Form,
     meta: {
-      title: '表单'
-    }
-  },
-  {
-    path: '/components',
-    name: 'Components',
-    component: Components,
-    meta: {
-      title: '组件'
+      title: '表单',
+      icon: 'Document',
+      showInMenu: true,
+      order: 4
     }
   },
   {
@@ -47,8 +64,35 @@ const routes = [
     name: 'MenuList',
     component: MenuList,
     meta: {
-      title: '菜单列表'
+      title: '菜单列表',
+      icon: 'Menu',
+      showInMenu: true,
+      order: 5
     }
+  },
+  // 静态路由 - 错误页面（不在菜单中显示）
+  {
+    path: '/403',
+    name: 'Error403',
+    component: Error403,
+    meta: {
+      title: '403',
+      showInMenu: false
+    }
+  },
+  {
+    path: '/404',
+    name: 'Error404',
+    component: Error404,
+    meta: {
+      title: '404',
+      showInMenu: false
+    }
+  },
+  // 404 兜底路由（必须放在最后）
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/404'
   }
 ]
 

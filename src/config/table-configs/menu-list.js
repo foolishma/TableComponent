@@ -18,46 +18,40 @@ export default {
   // 查询条件配置
   queryConditions: [
     {
-      prop: 'name',
+      prop: 'name1',
       label: '菜单名称',
       placeholder: '请输入菜单名称',
-      type: 'input',
-      span: 6
+      type: 'input'
     },
     {
-      prop: 'name',
+      prop: 'name2',
       label: '菜单名称',
       placeholder: '请输入菜单名称',
-      type: 'input',
-      span: 6
+      type: 'input'
     },
     {
-      prop: 'name',
+      prop: 'name3',
       label: '菜单名称',
       placeholder: '请输入菜单名称',
-      type: 'input',
-      span: 6
+      type: 'input'
     },
     {
-      prop: 'name',
+      prop: 'name4',
       label: '菜单名称',
       placeholder: '请输入菜单名称',
-      type: 'input',
-      span: 6
+      type: 'input'
     },
     {
-      prop: 'name',
+      prop: 'name5',
       label: '菜单名称',
       placeholder: '请输入菜单名称',
-      type: 'input',
-      span: 6
+      type: 'input'
     },
     {
       prop: 'status',
       label: '状态',
       placeholder: '请选择状态',
       type: 'select',
-      span: 6,
       options: [
         { label: '启用', value: '1' },
         { label: '禁用', value: '0' }
@@ -68,11 +62,27 @@ export default {
       prop: 'createTime',
       label: '创建时间',
       type: 'daterange',
-      span: 6,
+      span: 12,
       startPlaceholder: '开始日期',
       endPlaceholder: '结束日期',
       format: 'YYYY-MM-DD',
       valueFormat: 'YYYY-MM-DD'
+      // 自定义查询字段名（可选，不设置则使用 prop + 'Start' / prop + 'End'）
+      // startField: 'createTimeStart', // 默认: 'createTimeStart'
+      // endField: 'createTimeEnd' // 默认: 'createTimeEnd'
+    },
+    {
+      prop: 'price',
+      label: '价格范围',
+      type: 'numberrange',
+      span: 6,
+      startPlaceholder: '最低价格',
+      endPlaceholder: '最高价格',
+      min: 0,
+      max: 999999
+      // 自定义查询字段名（可选，不设置则使用 prop + 'Start' / prop + 'End'）
+      // startField: 'minPrice', // 默认: 'priceStart'
+      // endField: 'maxPrice' // 默认: 'priceEnd'
     }
   ],
 
@@ -174,6 +184,9 @@ export default {
     border: true,
     height: 'auto',
     maxHeight: 600,
+    // 行数据的唯一标识，用于区别行的唯一性（可选，默认为 'id'）
+    // 支持字符串（如 'id'）或函数（如 (row) => row.id）
+    rowKey: 'id',
     // 是否自适应高度
     // true: 表格高度按内容展开，最高占满剩余空间，内容超出则内容区滚动（默认）
     // false: 占满屏幕高度剩余空间

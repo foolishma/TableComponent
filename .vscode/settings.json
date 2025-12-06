@@ -1,0 +1,117 @@
+{
+  // ========== 编辑器基础配置 ==========
+  // 文件保存时自动格式化
+  "editor.formatOnSave": true,
+  // 保存时自动修复
+  "editor.codeActionsOnSave": {
+    // 保存时运行 ESLint 自动修复
+    "source.fixAll.eslint": "explicit",
+    // 保存时整理导入（如果安装了相关扩展）
+    "source.organizeImports": "explicit"
+  },
+  // 默认格式化工具：使用 Prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // ========== 文件类型特定配置 ==========
+  // JavaScript 文件
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // JavaScript React 文件
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // Vue 文件
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // JSON 文件
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // JSON with Comments 文件
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // CSS 文件
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // SCSS 文件
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // HTML 文件
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // Markdown 文件
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    // Markdown 文件自动换行
+    "editor.wordWrap": "on"
+  },
+
+  // ========== ESLint 配置 ==========
+  // 启用 ESLint
+  "eslint.enable": true,
+  // 保存时自动修复
+  "eslint.format.enable": true,
+  // 验证的文件类型
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "vue"
+  ],
+  // 保存时自动修复所有可修复的问题
+  "eslint.codeActionsOnSave.mode": "all",
+
+  // ========== Prettier 配置 ==========
+  // 启用 Prettier
+  "prettier.enable": true,
+  // 使用项目的 Prettier 配置文件
+  "prettier.requireConfig": true,
+  // 忽略的文件（Prettier 不会格式化这些文件）
+  "prettier.ignorePath": ".prettierignore",
+
+  // ========== Vue 文件配置 ==========
+  // Vue 文件中的 <script> 和 <style> 标签不缩进
+  "vetur.format.defaultFormatterOptions": {
+    "prettier": {
+      "tabWidth": 2,
+      "useTabs": false
+    }
+  },
+
+  // ========== 编辑器其他配置 ==========
+  // 使用空格而不是 Tab
+  "editor.insertSpaces": true,
+  // Tab 大小
+  "editor.tabSize": 2,
+  // 自动检测文件缩进
+  "editor.detectIndentation": true,
+  // 删除尾随空格
+  "files.trimTrailingWhitespace": true,
+  // 文件末尾插入新行
+  "files.insertFinalNewline": true,
+  // 删除文件末尾的空行
+  "files.trimFinalNewlines": true,
+  // 自动保存
+  "files.autoSave": "onFocusChange",
+
+  // ========== 文件关联 ==========
+  // 将 .cjs 文件识别为 JavaScript
+  "files.associations": {
+    "*.cjs": "javascript",
+    "*.mjs": "javascript"
+  }
+}

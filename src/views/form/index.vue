@@ -138,9 +138,9 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
 import { Check, Refresh, View } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { reactive, ref } from 'vue'
 const formRef = ref(null)
 const previewData = ref(null)
 

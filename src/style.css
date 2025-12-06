@@ -6,3 +6,46 @@
   width: 100%;
   min-height: 100vh;
 }
+
+/* 暗黑模式样式 */
+:root {
+  --el-color-primary: #409eff;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* 暗黑模式下的背景色调整 */
+.dark .layout-main {
+  background: #1a1a1a;
+}
+
+.dark .layout-header {
+  background: #252525;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.dark .layout-aside {
+  background: #252525;
+}
+
+/* Element Plus 暗黑模式支持 */
+html.dark {
+  --el-bg-color: #1a1a1a;
+  --el-bg-color-page: #0a0a0a;
+  --el-text-color-primary: #e5eaf3;
+  --el-text-color-regular: #cfd3dc;
+  --el-text-color-secondary: #a3a6ad;
+  --el-border-color: #4c4d4f;
+  --el-border-color-light: #414243;
+  --el-border-color-lighter: #363637;
+  --el-border-color-extra-light: #2b2b2c;
+  --el-fill-color: #424243;
+  --el-fill-color-light: #39393a;
+  --el-fill-color-lighter: #262727;
+  --el-fill-color-extra-light: #1d1d1d;
+  --el-fill-color-dark: #39393a;
+  --el-fill-color-darker: #424243;
+  --el-fill-color-blank: transparent;
+}
