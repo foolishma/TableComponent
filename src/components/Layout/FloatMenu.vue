@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
   position: absolute;
   right: 0;
   bottom: 72px;
-  width: 320px;
+  width: 360px;
   min-height: 200px;
   animation: slideUp 0.3s ease-out;
   z-index: 1002;
@@ -201,8 +201,41 @@ onBeforeUnmount(() => {
 .menu-options {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 8px 0;
+}
+
+.menu-options :deep(.el-radio-group) {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+}
+
+.menu-options :deep(.el-radio-button) {
+  flex: 1;
+  min-width: calc(33.333% - 3px);
+  max-width: 100%;
+}
+
+.menu-options :deep(.el-radio-button__inner) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* 当内容过长时，允许换行但保持最小宽度 */
+@media (max-width: 400px) {
+  .menu-options :deep(.el-radio-button) {
+    min-width: calc(50% - 2px);
+    flex: 0 0 calc(50% - 2px);
+  }
 }
 
 .float-menu-mask {
