@@ -1,0 +1,265 @@
+# 工作流名称
+name: Sync to Subsystems
+
+# 触发条件：当代码推送到 main 分支时触发
+on:
+  push:
+    branches:
+      - main
+    # 可选：只监听特定路径的变化，减少不必要的触发
+    # 如果启用，只有这些路径的文件变化才会触发工作流
+    # paths:
+    #   - 'src/components/UploadComponent/**'
+    #   - '.github/workflows/sync-to-subsystems.yml'
+
+  # 可选：手动触发工作流（在 GitHub Actions 页面手动运行）
+  workflow_dispatch:
+    inputs:
+      skip_sync:
+        description: '是否跳过同步（输入 true 跳过）'
+        required: false
+        default: false
+        type: boolean
+
+# 工作流任务
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    # 控制 1: 检查提交消息中是否包含 [skip ci] 或 [skip sync]
+    # 如果提交消息包含这些标记，工作流会跳过执行
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, '[skip sync]') &&
+      !contains(github.event.head_commit.message, '[ci skip]') &&
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.skip_sync != 'true' || github.event_name != 'workflow_dispatch')
+
+    steps:
+      # 步骤 1: 检出当前仓库代码
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          # 获取完整的 Git 历史记录，用于保留提交历史
+          fetch-depth: 0
+          # 使用 token 进行认证（GitHub 自动提供，无需配置）
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤 2: 配置 Git 用户信息（用于提交记录）
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      # 步骤 3: 同步到各个子系统
+      # 注意：这里使用循环方式处理多个目标仓库
+      # 如果需要并行执行，可以使用 matrix 策略
+      - name: Sync to Subsystems
+        env:
+          # ============================================
+          # 配置区域：请根据实际情况修改以下配置
+          # ============================================
+
+          # 配置 1: 要推送的源目录路径（相对于仓库根目录）
+          # 示例：只推送 UploadComponent 组件目录
+          SOURCE_DIR: 'src/components/UploadComponent'
+
+          # 配置 2: 目标分支名称（推送到子系统的哪个分支）
+          TARGET_BRANCH: 'dev'
+
+          # 配置 3: 源分支名称（从当前仓库的哪个分支获取代码）
+          SOURCE_BRANCH: 'main'
+
+          # 配置 4: 目标仓库列表（多个子系统地址，用空格分隔）
+          # 格式：https://github.com/owner/repo1 https://github.com/owner/repo2
+          # 注意：如果仓库是私有的，需要确保有访问权限
+          # 示例（请替换为实际的目标仓库地址）：
+          TARGET_REPOS: |
+            https://github.com/your-org/subsystem1.git
+            https://github.com/your-org/subsystem2.git
+            https://github.com/your-org/subsystem3.git
+
+          # 配置 5: 目标仓库中的目标目录路径（代码推送到子系统的哪个目录）
+          # 如果为空，则推送到仓库根目录
+          # 示例：如果要在子系统中也放在相同路径，设置为 'src/components/UploadComponent'
+          TARGET_DIR: 'src/components/UploadComponent'
+
+          # 配置 6: Git 认证 Token（如果需要访问私有仓库，使用 Personal Access Token）
+          # 创建方式：GitHub Settings -> Developer settings -> Personal access tokens -> Tokens (classic)
+          # 权限需要：repo（完整仓库访问权限）
+          # 然后在仓库 Settings -> Secrets and variables -> Actions 中添加名为 GITHUB_TOKEN 的 secret
+          # 注意：如果所有仓库都是公开的，且在同一组织下，可以使用默认的 GITHUB_TOKEN
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # 配置 7: GitHub Actions 上下文变量（用于提交信息）
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+
+          # 配置 8: 工作流开关（通过环境变量控制）
+          # 设置为 'false' 可以禁用同步功能（工作流仍会运行，但会跳过同步步骤）
+          # 可以通过仓库 Secrets 设置 ENABLE_SYNC 来控制
+          # 在仓库 Settings -> Secrets and variables -> Actions -> New repository secret
+          # 添加名为 ENABLE_SYNC 的 secret，值为 'false' 即可禁用同步
+          ENABLE_SYNC: ${{ secrets.ENABLE_SYNC || 'true' }}
+
+        run: |
+          echo "============================================"
+          echo "开始同步代码到子系统"
+          echo "============================================"
+          echo "源目录: $SOURCE_DIR"
+          echo "源分支: $SOURCE_BRANCH"
+          echo "目标分支: $TARGET_BRANCH"
+          echo "目标目录: ${TARGET_DIR:-根目录}"
+          echo "同步开关: $ENABLE_SYNC"
+          echo ""
+
+          # 控制 2: 检查同步开关
+          if [ "$ENABLE_SYNC" = "false" ]; then
+            echo "⚠️  同步功能已禁用（ENABLE_SYNC=false），跳过同步"
+            exit 0
+          fi
+
+          # 检查源目录是否存在
+          if [ ! -d "$SOURCE_DIR" ]; then
+            echo "❌ 错误: 源目录 $SOURCE_DIR 不存在"
+            exit 1
+          fi
+
+          # 遍历每个目标仓库
+          echo "$TARGET_REPOS" | while read -r repo; do
+            # 跳过空行
+            [ -z "$repo" ] && continue
+
+            echo ""
+            echo "--------------------------------------------"
+            echo "正在同步到: $repo"
+            echo "--------------------------------------------"
+
+            # 提取仓库名称（用于临时目录命名）
+            repo_name=$(basename "$repo" .git)
+            temp_dir="temp_${repo_name}_$(date +%s)"
+
+            # 克隆目标仓库到临时目录
+            echo "📥 克隆目标仓库..."
+            git clone --branch "$TARGET_BRANCH" --single-branch --depth 1 "$repo" "$temp_dir" 2>&1 || {
+              # 如果目标分支不存在，尝试创建
+              echo "⚠️  目标分支 $TARGET_BRANCH 不存在，尝试创建..."
+              git clone --single-branch --depth 1 "$repo" "$temp_dir" 2>&1 || {
+                echo "❌ 无法克隆仓库，跳过: $repo"
+                continue
+              }
+              cd "$temp_dir"
+              git checkout -b "$TARGET_BRANCH" 2>&1 || git checkout "$TARGET_BRANCH" 2>&1
+              cd ..
+            }
+
+            # 进入临时目录
+            cd "$temp_dir"
+
+            # 配置远程仓库 URL（包含认证信息）
+            # 如果使用 Personal Access Token，格式为：https://TOKEN@github.com/owner/repo.git
+            if [ -n "$GIT_TOKEN" ] && [ "$GIT_TOKEN" != "null" ]; then
+              # 提取仓库路径（去掉 https:// 和 .git）
+              repo_path=$(echo "$repo" | sed 's|https://||' | sed 's|\.git$||')
+              auth_repo="https://${GIT_TOKEN}@${repo_path}.git"
+              git remote set-url origin "$auth_repo"
+            fi
+
+            # 获取源仓库的最新提交信息（用于保留提交历史记录）
+            echo "📋 获取源仓库提交信息..."
+            cd ..
+            source_commit_hash=$(git rev-parse HEAD)
+            source_commit_message=$(git log -1 --pretty=format:"%s")
+            source_commit_author=$(git log -1 --pretty=format:"%an <%ae>")
+            source_commit_date=$(git log -1 --pretty=format:"%ai")
+            cd "$temp_dir"
+
+            # 创建或清空目标目录
+            if [ -n "$TARGET_DIR" ]; then
+              echo "📁 准备目标目录: $TARGET_DIR"
+              # 删除目标目录（如果存在）- 强制覆盖模式
+              rm -rf "$TARGET_DIR"
+              # 创建目录结构
+              mkdir -p "$TARGET_DIR"
+            else
+              # 如果目标目录为空，清空根目录（保留 .git）
+              echo "📁 准备根目录（强制覆盖模式）"
+              find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+            fi
+
+            # 复制源目录内容到目标目录
+            echo "📋 复制文件（保留文件结构）..."
+            if [ -n "$TARGET_DIR" ]; then
+              cp -r "../$SOURCE_DIR"/* "$TARGET_DIR/" 2>/dev/null || {
+                # 如果复制失败，尝试逐个文件复制（包括隐藏文件）
+                mkdir -p "$TARGET_DIR"
+                cp -r "../$SOURCE_DIR"/. "$TARGET_DIR/" 2>/dev/null || true
+              }
+            else
+              cp -r "../$SOURCE_DIR"/* . 2>/dev/null || {
+                cp -r "../$SOURCE_DIR"/. . 2>/dev/null || true
+              }
+            fi
+
+            # 添加所有更改
+            git add -A
+
+            # 检查是否有更改
+            if git diff --staged --quiet && git diff --quiet; then
+              echo "ℹ️  没有更改，跳过提交"
+              cd ..
+              rm -rf "$temp_dir"
+              continue
+            fi
+
+            # 提交更改（强制覆盖模式）
+            # 提交信息包含源仓库的完整提交历史信息，便于追溯
+            echo "💾 提交更改（保留源仓库提交信息）..."
+            # 构建提交消息（使用 printf 避免 YAML 解析问题）
+            commit_title="chore: sync from main repository [skip ci]"
+            commit_body=$(printf "Auto-synced from %s@%s\nSource branch: %s\nSource directory: %s\nSource commit: %s\nSource commit message: %s\nSource commit author: %s\nSource commit date: %s\nSynced at: %s\n\nNote: This is an automated sync. Original commit history is preserved in the commit message above." \
+              "${GITHUB_REPOSITORY}" \
+              "${GITHUB_SHA}" \
+              "$SOURCE_BRANCH" \
+              "$SOURCE_DIR" \
+              "$source_commit_hash" \
+              "$source_commit_message" \
+              "$source_commit_author" \
+              "$source_commit_date" \
+              "$(date -u +'%Y-%m-%d %H:%M:%S UTC')")
+            commit_message="$commit_title"$'\n\n'"$commit_body"
+
+            git commit -m "$commit_message" || {
+              echo "⚠️  提交失败，可能没有更改"
+            }
+
+            # 强制推送到目标仓库（覆盖远程分支）
+            echo "🚀 强制推送到目标仓库..."
+            git push origin "$TARGET_BRANCH" --force || {
+              echo "❌ 推送失败: $repo"
+              cd ..
+              rm -rf "$temp_dir"
+              continue
+            }
+
+            echo "✅ 成功同步到: $repo"
+
+            # 返回上级目录并清理临时目录
+            cd ..
+            rm -rf "$temp_dir"
+          done
+
+          echo ""
+          echo "============================================"
+          echo "✅ 所有子系统同步完成"
+          echo "============================================"
+
+      # 步骤 4: 可选 - 发送通知（如需要）
+      # - name: Notify on success
+      #   if: success()
+      #   run: |
+      #     echo "同步成功通知逻辑（可集成 Slack、邮件等）"
+
+      # - name: Notify on failure
+      #   if: failure()
+      #   run: |
+      #     echo "同步失败通知逻辑"

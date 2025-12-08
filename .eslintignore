@@ -1,14 +1,20 @@
-node_modules
-dist
-dist-ssr
-*.local
-.vscode
-.idea
-.DS_Store
-coverage
-*.log
-*.lock
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# 忽略目录
+node_modules/
+dist/
+build/
+coverage/
+.vscode/
+.idea/
 
+# 忽略 GitHub Actions 工作流文件（YAML 文件）
+.github/
+
+# 忽略配置文件
+*.config.js
+*.config.cjs
+*.config.mjs
+vite.config.js
+
+# 忽略其他文件
+*.min.js
+*.bundle.js
