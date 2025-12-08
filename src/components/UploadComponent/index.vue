@@ -8,6 +8,7 @@
       :accept="computedAccept"
       :file-list="fileList"
       :ui-type="uiType"
+      :show-progress="showProgress"
       v-bind="uploadProps"
       @update:file-list="handleFileListUpdate"
       @change="handleChange"
@@ -57,6 +58,11 @@ const props = defineProps({
   fileList: {
     type: Array,
     default: () => []
+  },
+  // 是否显示上传进度
+  showProgress: {
+    type: Boolean,
+    default: true
   },
   // el-upload 的所有其他属性
   action: {
@@ -194,11 +200,27 @@ const uiComponent = computed(() => {
 
 // 构建 el-upload 的属性对象（排除已单独定义的属性）
 const uploadProps = computed(() => {
-  const { mode: _mode, uiType: _uiType, accept: _accept, fileList: _fileList, ...restProps } = props
-  return {
+  const {
+    mode: _mode,
+    uiType: _uiType,
+    accept: _accept,
+    fileList: _fileList,
+    showProgress: _showProgress,
+    ...restProps
+  } = props
+
+  // 确保 httpRequest 是函数或 undefined，不能是 null
+  const uploadPropsResult = {
     ...restProps,
     accept: computedAccept.value
   }
+
+  // 如果 httpRequest 是 null，则删除该属性，避免传递 null 给 el-upload
+  if (uploadPropsResult.httpRequest === null) {
+    delete uploadPropsResult.httpRequest
+  }
+
+  return uploadPropsResult
 })
 
 // 文件列表更新

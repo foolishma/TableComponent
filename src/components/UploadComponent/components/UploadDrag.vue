@@ -22,8 +22,9 @@
       :limit="limit"
       :auto-upload="autoUpload"
       :list-type="listType"
-      :http-request="httpRequest"
+      :http-request="httpRequest || undefined"
       :disabled="disabled"
+      :class="{ 'hide-progress': !showProgress }"
       @change="handleChange"
       @progress="handleProgress"
       @success="handleSuccess"
@@ -82,6 +83,10 @@ const props = defineProps({
   fileList: {
     type: Array,
     default: () => []
+  },
+  showProgress: {
+    type: Boolean,
+    default: true
   },
   action: String,
   headers: Object,
@@ -283,5 +288,63 @@ defineExpose({
 .tip-icon {
   color: #909399;
   flex-shrink: 0;
+}
+
+/* 隐藏上传进度 */
+.hide-progress :deep(.el-upload-list__item .el-progress),
+.hide-progress :deep(.el-upload-list__item .el-progress-bar),
+.hide-progress :deep(.el-upload-list__item .el-progress__text) {
+  display: none !important;
+}
+
+/* 确保进度条相关元素都被隐藏 */
+.hide-progress :deep(.el-upload-list__item) .el-progress {
+  display: none !important;
+}
+
+/* 优化进度条显示时机和动画 */
+:deep(.el-upload-list__item .el-progress) {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* 只在文件上传中时显示进度条 */
+:deep(.el-upload-list__item.is-uploading .el-progress) {
+  opacity: 1;
+  animation: progressFadeIn 0.3s ease-in-out;
+}
+
+/* 上传完成后延迟隐藏进度条 */
+:deep(.el-upload-list__item.is-success .el-progress),
+:deep(.el-upload-list__item.is-error .el-progress) {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out 0.3s;
+  pointer-events: none;
+}
+
+@keyframes progressFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 进度条文本动画 */
+:deep(.el-upload-list__item .el-progress__text) {
+  transition: opacity 0.3s ease-in-out;
+}
+
+:deep(.el-upload-list__item.is-uploading .el-progress__text) {
+  opacity: 1;
+}
+
+:deep(.el-upload-list__item.is-success .el-progress__text),
+:deep(.el-upload-list__item.is-error .el-progress__text) {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out 0.2s;
 }
 </style>

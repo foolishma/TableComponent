@@ -160,6 +160,52 @@
         </el-card>
       </section>
 
+      <!-- 控制上传进度显示 -->
+      <section class="doc-section mb-8">
+        <h2 class="section-title">控制上传进度显示</h2>
+        <p class="section-desc">
+          通过 <code>showProgress</code> 属性控制是否显示上传进度条，默认为 <code>true</code>。
+        </p>
+
+        <el-card shadow="never" class="demo-card">
+          <template #header>
+            <span class="font-semibold">示例</span>
+          </template>
+          <div class="demo-content space-y-4">
+            <div>
+              <h4 class="mb-2 font-semibold">显示上传进度（默认）</h4>
+              <UploadComponent
+                v-model:file-list="demo11FileList"
+                mode="attachment"
+                ui-type="list"
+                action="/api/upload"
+                :show-progress="true"
+              />
+            </div>
+            <div>
+              <h4 class="mb-2 font-semibold">隐藏上传进度</h4>
+              <UploadComponent
+                v-model:file-list="demo12FileList"
+                mode="attachment"
+                ui-type="list"
+                action="/api/upload"
+                :show-progress="false"
+              />
+            </div>
+          </div>
+        </el-card>
+
+        <el-card shadow="never" class="code-card">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="font-semibold">代码示例</span>
+              <el-button text size="small" @click="copyCode(showProgressCode)">复制代码</el-button>
+            </div>
+          </template>
+          <pre class="code-block"><code>{{ showProgressCode }}</code></pre>
+        </el-card>
+      </section>
+
       <!-- 文件类型限制 -->
       <section class="doc-section mb-8">
         <h2 class="section-title">文件类型限制</h2>
@@ -251,6 +297,8 @@ const demo7FileList = ref([])
 const demo8FileList = ref([])
 const demo9FileList = ref([])
 const demo10FileList = ref([])
+const demo11FileList = ref([])
+const demo12FileList = ref([])
 
 // 代码示例
 const basicUsageCode =
@@ -349,6 +397,26 @@ const acceptCode =
   '  />\n' +
   '</template>'
 
+const showProgressCode =
+  '<template>\n' +
+  '  <!-- 显示上传进度（默认） -->\n' +
+  '  <UploadComponent\n' +
+  '    v-model:file-list="fileList"\n' +
+  '    mode="attachment"\n' +
+  '    ui-type="list"\n' +
+  '    action="/api/upload"\n' +
+  '    :show-progress="true"\n' +
+  '  />\n\n' +
+  '  <!-- 隐藏上传进度 -->\n' +
+  '  <UploadComponent\n' +
+  '    v-model:file-list="fileList"\n' +
+  '    mode="attachment"\n' +
+  '    ui-type="list"\n' +
+  '    action="/api/upload"\n' +
+  '    :show-progress="false"\n' +
+  '  />\n' +
+  '</template>'
+
 // 复制代码
 const copyCode = (code) => {
   navigator.clipboard.writeText(code).then(() => {
@@ -421,6 +489,12 @@ const propsData = [
   {
     name: 'showFileList',
     desc: '是否显示已上传文件列表',
+    type: 'boolean',
+    default: 'true'
+  },
+  {
+    name: 'showProgress',
+    desc: '是否显示上传进度',
     type: 'boolean',
     default: 'true'
   },
