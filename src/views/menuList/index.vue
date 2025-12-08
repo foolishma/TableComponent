@@ -21,11 +21,11 @@
 import TableComponent from '@/components/TableComponent/index.vue'
 import { useTableFunc } from '@/hooks/useTableFunc'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import menuConfig from './listConfig.js'
 
 const tableRef = ref(null)
+const $modal = inject('$modal')
 
 const reload = () => {
   tableRef.value?.reload()
@@ -41,7 +41,7 @@ const functionMap = {
   // 操作列按钮函数
   handleEdit: (row) => {
     console.log('编辑', row)
-    ElMessage.info(`编辑菜单: ${row.name}`)
+    $modal.msgInfo(`编辑菜单: ${row.name}`)
   },
 
   handleDelete: (row) => {
@@ -55,17 +55,17 @@ const functionMap = {
       onSuccess: () => {
         reload()
       }
-    })
+    })(row)
   },
 
   handleView: (row) => {
     console.log('查看', row)
-    ElMessage.info(`查看菜单: ${row.name}`)
+    $modal.msgInfo(`查看菜单: ${row.name}`)
   },
 
   handleCopy: (row) => {
     console.log('复制', row)
-    ElMessage.success('复制成功')
+    $modal.msgSuccess('复制成功')
     // 重新加载数据
     tableRef.value?.reload()
   },
@@ -73,7 +73,7 @@ const functionMap = {
   // 顶部按钮函数
   handleAdd: () => {
     console.log('新增菜单')
-    ElMessage.info('打开新增对话框')
+    $modal.msgInfo('打开新增对话框')
     // 这里可以打开新增对话框
     // 新增成功后重新加载数据
     // tableRef.value?.reload()
@@ -81,13 +81,13 @@ const functionMap = {
 
   handleExport: () => {
     console.log('导出数据')
-    ElMessage.success('导出成功')
+    $modal.msgSuccess('导出成功')
   },
 
-  handleBatchDelete: () => {
+  handleBatchDelete: (_button) => {
     const selectedRows = tableRef.value?.selectedRows
     if (!selectedRows || selectedRows.length === 0) {
-      ElMessage.warning('请先选择要删除的数据')
+      $modal.msgWarning('请先选择要删除的数据')
       return
     }
     useTableFunc({
@@ -100,7 +100,7 @@ const functionMap = {
       onSuccess: () => {
         reload()
       }
-    })
+    })(selectedRows)
   }
 }
 

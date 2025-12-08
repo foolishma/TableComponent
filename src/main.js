@@ -4,6 +4,7 @@ import 'element-plus/dist/index.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import i18n from './i18n'
+import modalPlugin from './plugins/modal'
 import router from './router'
 import pinia from './store'
 import { useLocaleStore } from './store/locale'
@@ -41,12 +42,15 @@ app.use(ElementPlus, {
 // 8. 注册路由
 app.use(router)
 
-// 9. 注册所有图标
+// 9. 注册全局 Modal 插件
+app.use(modalPlugin)
+
+// 10. 注册所有图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-// 10. 监听语言变化，同步更新 i18n 和 Element Plus
+// 11. 监听语言变化，同步更新 i18n 和 Element Plus
 localeStore.$subscribe(
   (mutation, state) => {
     // 只在 currentLanguage 变化时触发
@@ -70,5 +74,5 @@ localeStore.$subscribe(
   { detached: false } // 组件卸载后也继续监听
 )
 
-// 11. 挂载应用
+// 12. 挂载应用
 app.mount('#app')
