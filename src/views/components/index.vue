@@ -49,6 +49,22 @@
               </div>
             </el-card>
           </el-col>
+
+          <el-col :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card
+              shadow="hover"
+              class="component-card cursor-pointer transition-all hover:shadow-lg"
+              @click="$router.push('/components/upload')"
+            >
+              <div class="text-center">
+                <el-icon :size="48" class="text-orange-500 mb-4">
+                  <Upload />
+                </el-icon>
+                <h3 class="text-lg font-semibold mb-2">Upload 上传组件</h3>
+                <p class="text-sm text-gray-500">支持图片和附件的上传组件</p>
+              </div>
+            </el-card>
+          </el-col>
         </el-row>
       </div>
     </el-card>
@@ -56,7 +72,7 @@
 </template>
 
 <script setup>
-import { Grid, Message } from '@element-plus/icons-vue'
+import { Grid, Message, Upload } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

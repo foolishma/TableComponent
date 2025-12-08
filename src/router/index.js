@@ -3,6 +3,7 @@ import Error404 from '@/views/404.vue'
 import Components from '@/views/components/index.vue'
 import ModalDoc from '@/views/components/modal.vue'
 import TableDoc from '@/views/components/table.vue'
+import UploadDoc from '@/views/components/upload.vue'
 import Home from '@/views/home/index.vue'
 import MenuList from '@/views/menuList/index.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -61,6 +62,15 @@ const routes = [
     component: TableDoc,
     meta: {
       title: 'Table 表格组件',
+      showInMenu: false
+    }
+  },
+  {
+    path: '/components/upload',
+    name: 'UploadDoc',
+    component: UploadDoc,
+    meta: {
+      title: 'Upload 上传组件',
       showInMenu: false
     }
   },
