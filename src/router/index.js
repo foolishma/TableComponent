@@ -1,7 +1,5 @@
 import Error403 from '@/views/403.vue'
 import Error404 from '@/views/404.vue'
-import Components from '@/views/components/index.vue'
-import Form from '@/views/form/index.vue'
 import Home from '@/views/home/index.vue'
 import MenuList from '@/views/menuList/index.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -21,42 +19,6 @@ const routes = [
       icon: 'HomeFilled',
       showInMenu: true,
       order: 1
-    }
-  },
-  // 动态路由 - 组件模块（支持多级菜单）
-  {
-    path: '/components',
-    name: 'Components',
-    redirect: '/components/index',
-    meta: {
-      title: '组件',
-      icon: 'Box',
-      showInMenu: true,
-      order: 2
-    },
-    children: [
-      {
-        path: 'index',
-        name: 'TableComponent',
-        component: Components,
-        meta: {
-          title: '组件',
-          icon: 'Grid',
-          showInMenu: true
-        }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    name: 'Form',
-    component: Form,
-    meta: {
-      title: '表单',
-      icon: 'Document',
-      showInMenu: true,
-      order: 4
     }
   },
   {
