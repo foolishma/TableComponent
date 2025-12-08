@@ -1,6 +1,11 @@
 <template>
   <div class="menu-list-page">
-    <TableComponent ref="tableRef" :config="menuConfig" :function-map="functionMap">
+    <TableComponent
+      ref="tableRef"
+      :config="menuConfig"
+      :function-map="functionMap"
+      :show-btn-func="showBtnFunc"
+    >
       <!-- 自定义图标列 -->
       <template #icon="{ row }">
         <el-icon v-if="row.icon" :size="20">
@@ -14,12 +19,17 @@
 
 <script setup>
 import TableComponent from '@/components/TableComponent/index.vue'
-import menuConfig from '@/config/table-configs/menu-list.js'
+import { useTableFunc } from '@/hooks/useTableFunc'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
+import menuConfig from './listConfig.js'
 
 const tableRef = ref(null)
+
+const reload = () => {
+  tableRef.value?.reload()
+}
 
 // 获取图标
 const getIcon = (iconName) => {
@@ -35,19 +45,17 @@ const functionMap = {
   },
 
   handleDelete: (row) => {
-    ElMessageBox.confirm(`确定要删除菜单 "${row.name}" 吗？`, '删除确认', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    useTableFunc({
+      api: {
+        url: '/api/menu/delete',
+        method: 'delete'
+      },
+      params: () => ({ id: row.id }),
+      successMessage: '删除成功',
+      onSuccess: () => {
+        reload()
+      }
     })
-      .then(() => {
-        ElMessage.success('删除成功')
-        // 重新加载数据
-        tableRef.value?.reload()
-      })
-      .catch(() => {
-        ElMessage.info('已取消删除')
-      })
   },
 
   handleView: (row) => {
@@ -76,26 +84,40 @@ const functionMap = {
     ElMessage.success('导出成功')
   },
 
-  handleBatchDelete: (rows) => {
-    if (!rows || rows.length === 0) {
+  handleBatchDelete: () => {
+    const selectedRows = tableRef.value?.selectedRows
+    if (!selectedRows || selectedRows.length === 0) {
       ElMessage.warning('请先选择要删除的数据')
       return
     }
-
-    ElMessageBox.confirm(`确定要删除选中的 ${rows.length} 条数据吗？`, '批量删除确认', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    useTableFunc({
+      api: {
+        url: '/api/menu/batchDelete',
+        method: 'delete'
+      },
+      params: () => ({ ids: selectedRows.map((row) => row.id) }),
+      successMessage: '批量删除成功',
+      onSuccess: () => {
+        reload()
+      }
     })
-      .then(() => {
-        ElMessage.success('批量删除成功')
-        // 重新加载数据
-        tableRef.value?.reload()
-      })
-      .catch(() => {
-        ElMessage.info('已取消删除')
-      })
   }
+}
+
+const showBtnFunc = (row, btn) => {
+  const btnStatus = {
+    show: true,
+    disabled: false
+  }
+
+  // 如果行内状态为已提交，则不能编辑
+  if (btn.id === 'menuList:edit') {
+    if (row.status === '已提交') {
+      btnStatus.disabled = true
+    }
+  }
+
+  return btnStatus
 }
 </script>
 

@@ -113,5 +113,9 @@
   "files.associations": {
     "*.cjs": "javascript",
     "*.mjs": "javascript"
-  }
+  },
+  "i18n-ally.localesPaths": [
+    "src/i18n",
+    "src/i18n/locales"
+  ]
 }

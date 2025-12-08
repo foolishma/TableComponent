@@ -149,3 +149,57 @@ import TableComponent from '@/components/TableComponent/index.vue'
 import tableConfig from './listConfig.js'
 </script>
 ```
+
+#### 按钮 ID 命名规范
+
+- **命名格式**：`功能菜单编码:功能按钮编码`
+- **命名规则**：
+  - 功能菜单编码：使用小驼峰命名，对应列表页面的功能模块名称
+  - 功能按钮编码：使用小驼峰命名，描述按钮的具体功能
+  - 使用冒号（`:`）分隔菜单编码和按钮编码
+
+**示例**：
+
+```javascript
+// 菜单列表页面（menuList）的按钮配置
+{
+  // 操作列按钮
+  buttons: [
+    {
+      label: '编辑',
+      id: 'menuList:edit',      // 编辑按钮
+      funcName: 'handleEdit'
+    },
+    {
+      label: '删除',
+      id: 'menuList:del',       // 单个删除按钮
+      funcName: 'handleDelete'
+    },
+    {
+      label: '查看',
+      id: 'menuList:view',      // 查看按钮
+      funcName: 'handleView'
+    }
+  ],
+
+  // 顶部按钮
+  topButtons: [
+    {
+      label: '新增菜单',
+      id: 'menuList:add',       // 新增按钮
+      funcName: 'handleAdd'
+    },
+    {
+      label: '批量删除',
+      id: 'menuList:batchDel',  // 批量删除按钮
+      funcName: 'handleBatchDelete'
+    }
+  ]
+}
+```
+
+**注意事项**：
+
+- 所有列表页配置文件中的按钮 `id` 必须遵循此命名规范
+- 功能菜单编码应与页面目录名称保持一致（如 `menuList`、`userList`、`orderList` 等）
+- 功能按钮编码应简洁明了，使用常见的英文缩写（如 `add`、`edit`、`del`、`view`、`batchDel` 等）

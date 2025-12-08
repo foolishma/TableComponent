@@ -26,7 +26,7 @@
       <!-- 顶部按钮区域 -->
       <div v-if="topButtons.length > 0" class="mb-4 flex items-center justify-start space-x-2">
         <el-button
-          v-for="button in topButtons"
+          v-for="button in visibleTopButtons"
           :key="button.id"
           :type="button.type || 'default'"
           :icon="button.icon ? getIcon(button.icon) : undefined"
@@ -135,7 +135,7 @@
           :action-column="actionColumn"
           :get-icon="getIcon"
           :function-map="functionMap"
-          :selected-rows="selectedRows"
+          :show-btn-func="showBtnFunc"
           @action-click="handleActionColumnClick"
         />
       </el-table>
@@ -176,6 +176,10 @@ const props = defineProps({
   functionMap: {
     type: Object,
     default: () => ({})
+  },
+  showBtnFunc: {
+    type: Function,
+    default: null
   }
 })
 
@@ -360,24 +364,40 @@ const handleSingleSelect = (row) => {
 const handleTopButtonClick = (button) => {
   const func = props.functionMap[button.funcName]
   if (func) {
-    if (button.id === 'batchDelete' || button.id === 'batchDelete') {
-      func(selectedRows.value)
-    } else {
-      func()
-    }
+    func(button)
   } else {
     ElMessage.warning(`函数 ${button.funcName} 未定义`)
   }
 }
 
+// 可见的顶部按钮（通过 showBtnFunc 控制显示）
+const visibleTopButtons = computed(() => {
+  if (!props.showBtnFunc) {
+    return topButtons.value
+  }
+  return topButtons.value.filter((button) => {
+    const result = props.showBtnFunc(null, button)
+    return result?.show !== false
+  })
+})
+
 // 按钮是否禁用（用于顶部按钮）
 const getButtonDisabled = (button) => {
+  // 优先使用 showBtnFunc 返回的 disabled
+  if (props.showBtnFunc) {
+    const result = props.showBtnFunc(null, button)
+    if (result && 'disabled' in result) {
+      return result.disabled
+    }
+  }
+
+  // 兼容原有的 disabled 配置
   if (button.disabled === undefined || button.disabled === false) {
     return false
   }
   if (typeof button.disabled === 'function') {
-    // 对于顶部按钮，可以传入选中的行数据，以便根据选中状态控制按钮禁用
-    return button.disabled(selectedRows.value, selectedRows.value)
+    // 对于顶部按钮，传入 button 和 selectedRows，以便根据按钮配置和选中状态控制按钮禁用
+    return button.disabled(button, selectedRows.value)
   }
   return button.disabled
 }

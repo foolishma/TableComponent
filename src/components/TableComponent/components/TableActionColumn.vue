@@ -50,7 +50,6 @@
 
 <script setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
 
 // Props
 const props = defineProps({
@@ -69,6 +68,10 @@ const props = defineProps({
   functionMap: {
     type: Object,
     default: () => ({})
+  },
+  showBtnFunc: {
+    type: Function,
+    default: null
   }
 })
 
@@ -95,6 +98,15 @@ const moreButtons = (_row) => {
 
 // 是否显示按钮
 const shouldShowButton = (button, row) => {
+  // 优先使用 showBtnFunc 返回的 show
+  if (props.showBtnFunc) {
+    const result = props.showBtnFunc(row, button)
+    if (result && 'show' in result) {
+      return result.show !== false
+    }
+  }
+
+  // 兼容原有的 show 配置
   if (button.show === undefined || button.show === true) {
     return true
   }
@@ -106,6 +118,15 @@ const shouldShowButton = (button, row) => {
 
 // 按钮是否禁用
 const getButtonDisabled = (button, row) => {
+  // 优先使用 showBtnFunc 返回的 disabled
+  if (props.showBtnFunc) {
+    const result = props.showBtnFunc(row, button)
+    if (result && 'disabled' in result) {
+      return result.disabled
+    }
+  }
+
+  // 兼容原有的 disabled 配置
   if (button.disabled === undefined || button.disabled === false) {
     return false
   }
@@ -116,23 +137,7 @@ const getButtonDisabled = (button, row) => {
 }
 
 // 操作按钮点击
-const handleActionClick = async (button, row, index) => {
-  if (button.confirm) {
-    try {
-      await ElMessageBox.confirm(
-        button.confirm.message || '确认操作？',
-        button.confirm.title || '提示',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: button.confirm.type || 'warning'
-        }
-      )
-    } catch {
-      return
-    }
-  }
-
+const handleActionClick = (button, row, index) => {
   emit('action-click', button, row, index)
 }
 
