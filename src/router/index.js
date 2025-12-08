@@ -1,5 +1,8 @@
 import Error403 from '@/views/403.vue'
 import Error404 from '@/views/404.vue'
+import Components from '@/views/components/index.vue'
+import ModalDoc from '@/views/components/modal.vue'
+import TableDoc from '@/views/components/table.vue'
 import Home from '@/views/home/index.vue'
 import MenuList from '@/views/menuList/index.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -26,10 +29,39 @@ const routes = [
     name: 'MenuList',
     component: MenuList,
     meta: {
-      title: '菜单列表',
+      title: '表格组件',
       icon: 'Menu',
       showInMenu: true,
       order: 5
+    }
+  },
+  {
+    path: '/components',
+    name: 'Components',
+    component: Components,
+    meta: {
+      title: '组件文档',
+      icon: 'Document',
+      showInMenu: true,
+      order: 2
+    }
+  },
+  {
+    path: '/components/modal',
+    name: 'ModalDoc',
+    component: ModalDoc,
+    meta: {
+      title: '$modal 提示组件',
+      showInMenu: false
+    }
+  },
+  {
+    path: '/components/table',
+    name: 'TableDoc',
+    component: TableDoc,
+    meta: {
+      title: 'Table 表格组件',
+      showInMenu: false
     }
   },
   // 静态路由 - 错误页面（不在菜单中显示）

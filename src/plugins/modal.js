@@ -1,3 +1,4 @@
+import { Check, Close, InfoFilled, WarningFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
 
 /**
@@ -9,22 +10,29 @@ const modal = {
    * 成功提示
    * @param {string} message - 提示消息
    * @param {Object} options - 自定义选项
-   * @param {string} options.type - 提示类型：'message' | 'notification'，默认为 'message'
+   * @param {string} options.mode - 显示模式：'message' | 'notification'，默认为 'message'
    * @param {number} options.duration - 显示时长（毫秒），默认 3000
-   * @param {string} options.title - 通知标题（仅 notification 类型有效）
-   * @param {string} options.position - 通知位置（仅 notification 类型有效），默认 'top-right'
+   * @param {string} options.title - 通知标题（仅 notification 模式有效）
+   * @param {string} options.position - 通知位置（仅 notification 模式有效），默认 'top-right'
    */
   msgSuccess(message, options = {}) {
-    const { type = 'message', duration = 3000, title, position = 'top-right' } = options
+    const {
+      mode = 'message',
+      duration = 3000,
+      title,
+      position = 'top-right',
+      ...restOptions
+    } = options
 
-    if (type === 'notification') {
+    if (mode === 'notification') {
       return ElNotification({
         title: title || '成功',
         message,
         type: 'success',
         duration,
         position,
-        ...options
+        icon: Check,
+        ...restOptions
       })
     }
 
@@ -32,7 +40,8 @@ const modal = {
       message,
       type: 'success',
       duration,
-      ...options
+      showIcon: true,
+      ...restOptions
     })
   },
 
@@ -40,22 +49,29 @@ const modal = {
    * 错误提示
    * @param {string} message - 提示消息
    * @param {Object} options - 自定义选项
-   * @param {string} options.type - 提示类型：'message' | 'notification'，默认为 'message'
+   * @param {string} options.mode - 显示模式：'message' | 'notification'，默认为 'message'
    * @param {number} options.duration - 显示时长（毫秒），默认 3000
-   * @param {string} options.title - 通知标题（仅 notification 类型有效）
-   * @param {string} options.position - 通知位置（仅 notification 类型有效），默认 'top-right'
+   * @param {string} options.title - 通知标题（仅 notification 模式有效）
+   * @param {string} options.position - 通知位置（仅 notification 模式有效），默认 'top-right'
    */
   msgError(message, options = {}) {
-    const { type = 'message', duration = 3000, title, position = 'top-right' } = options
+    const {
+      mode = 'message',
+      duration = 3000,
+      title,
+      position = 'top-right',
+      ...restOptions
+    } = options
 
-    if (type === 'notification') {
+    if (mode === 'notification') {
       return ElNotification({
         title: title || '错误',
         message,
         type: 'error',
         duration,
         position,
-        ...options
+        icon: Close,
+        ...restOptions
       })
     }
 
@@ -63,7 +79,8 @@ const modal = {
       message,
       type: 'error',
       duration,
-      ...options
+      showIcon: true,
+      ...restOptions
     })
   },
 
@@ -71,22 +88,29 @@ const modal = {
    * 信息提示
    * @param {string} message - 提示消息
    * @param {Object} options - 自定义选项
-   * @param {string} options.type - 提示类型：'message' | 'notification'，默认为 'message'
+   * @param {string} options.mode - 显示模式：'message' | 'notification'，默认为 'message'
    * @param {number} options.duration - 显示时长（毫秒），默认 3000
-   * @param {string} options.title - 通知标题（仅 notification 类型有效）
-   * @param {string} options.position - 通知位置（仅 notification 类型有效），默认 'top-right'
+   * @param {string} options.title - 通知标题（仅 notification 模式有效）
+   * @param {string} options.position - 通知位置（仅 notification 模式有效），默认 'top-right'
    */
   msgInfo(message, options = {}) {
-    const { type = 'message', duration = 3000, title, position = 'top-right' } = options
+    const {
+      mode = 'message',
+      duration = 3000,
+      title,
+      position = 'top-right',
+      ...restOptions
+    } = options
 
-    if (type === 'notification') {
+    if (mode === 'notification') {
       return ElNotification({
         title: title || '提示',
         message,
         type: 'info',
         duration,
         position,
-        ...options
+        icon: InfoFilled,
+        ...restOptions
       })
     }
 
@@ -94,7 +118,8 @@ const modal = {
       message,
       type: 'info',
       duration,
-      ...options
+      showIcon: true,
+      ...restOptions
     })
   },
 
@@ -102,22 +127,29 @@ const modal = {
    * 警告提示
    * @param {string} message - 提示消息
    * @param {Object} options - 自定义选项
-   * @param {string} options.type - 提示类型：'message' | 'notification'，默认为 'message'
+   * @param {string} options.mode - 显示模式：'message' | 'notification'，默认为 'message'
    * @param {number} options.duration - 显示时长（毫秒），默认 3000
-   * @param {string} options.title - 通知标题（仅 notification 类型有效）
-   * @param {string} options.position - 通知位置（仅 notification 类型有效），默认 'top-right'
+   * @param {string} options.title - 通知标题（仅 notification 模式有效）
+   * @param {string} options.position - 通知位置（仅 notification 模式有效），默认 'top-right'
    */
   msgWarning(message, options = {}) {
-    const { type = 'message', duration = 3000, title, position = 'top-right' } = options
+    const {
+      mode = 'message',
+      duration = 3000,
+      title,
+      position = 'top-right',
+      ...restOptions
+    } = options
 
-    if (type === 'notification') {
+    if (mode === 'notification') {
       return ElNotification({
         title: title || '警告',
         message,
         type: 'warning',
         duration,
         position,
-        ...options
+        icon: WarningFilled,
+        ...restOptions
       })
     }
 
@@ -125,7 +157,8 @@ const modal = {
       message,
       type: 'warning',
       duration,
-      ...options
+      showIcon: true,
+      ...restOptions
     })
   }
 }

@@ -34,55 +34,6 @@
 
     <el-card shadow="hover">
       <template #header>
-        <span class="text-lg font-semibold">功能导航</span>
-      </template>
-
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-card
-            shadow="hover"
-            class="text-center cursor-pointer hover:shadow-lg transition-shadow"
-            @click="$router.push('/table')"
-          >
-            <el-icon :size="40" class="text-blue-500 mb-2"><Grid /></el-icon>
-            <h3 class="font-semibold mb-2">表格演示</h3>
-            <p class="text-sm text-gray-500">查看表格组件示例</p>
-          </el-card>
-        </el-col>
-        <el-col :span="6">
-          <el-card
-            shadow="hover"
-            class="text-center cursor-pointer hover:shadow-lg transition-shadow"
-            @click="$router.push('/form')"
-          >
-            <el-icon :size="40" class="text-green-500 mb-2"><Document /></el-icon>
-            <h3 class="font-semibold mb-2">表单演示</h3>
-            <p class="text-sm text-gray-500">查看表单组件示例</p>
-          </el-card>
-        </el-col>
-        <el-col :span="6">
-          <el-card
-            shadow="hover"
-            class="text-center cursor-pointer hover:shadow-lg transition-shadow"
-            @click="$router.push('/components')"
-          >
-            <el-icon :size="40" class="text-purple-500 mb-2"><Box /></el-icon>
-            <h3 class="font-semibold mb-2">组件演示</h3>
-            <p class="text-sm text-gray-500">查看各种组件示例</p>
-          </el-card>
-        </el-col>
-        <el-col :span="6">
-          <el-card shadow="hover" class="text-center">
-            <el-icon :size="40" class="text-orange-500 mb-2"><Setting /></el-icon>
-            <h3 class="font-semibold mb-2">更多功能</h3>
-            <p class="text-sm text-gray-500">持续更新中...</p>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-card>
-
-    <el-card shadow="hover">
-      <template #header>
         <span class="text-lg font-semibold">技术栈说明</span>
       </template>
 
@@ -116,9 +67,7 @@
   </div>
 </template>
 
-<script setup>
-import { Grid, Document, Box, Setting } from '@element-plus/icons-vue'
-</script>
+<script setup></script>
 
 <style scoped>
 .cursor-pointer {
