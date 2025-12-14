@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@zengwenliang/mcp-server-sequential-thinking"]
+    },
+    "playwright": {
+      "command": "npx @playwright/mcp@latest",
+      "env": {}
+    },
+    "shrimp-task-manager": {
+      "command": "npx",
+      "args": ["-y", "mcp-shrimp-task-manager"],
+      "env": {
+        "DATA_DIR": ".shrimpData",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "true"
+      }
+    },
+    "寸止": {
+      "command": "寸止"
+    },
+    "promptx": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "-f",
+        "--registry",
+        "https://registry.npmjs.org",
+        "dpml-prompt@beta",
+        "mcp-server"
+      ]
+    }
+  }
+}
