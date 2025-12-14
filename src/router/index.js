@@ -1,11 +1,14 @@
 import Error403 from '@/views/403.vue'
 import Error404 from '@/views/404.vue'
+import Command from '@/views/command/index.vue'
 import Components from '@/views/components/index.vue'
 import ModalDoc from '@/views/components/modal.vue'
 import TableDoc from '@/views/components/table.vue'
 import UploadDoc from '@/views/components/upload.vue'
+import CustomerList from '@/views/customer/index.vue'
 import Home from '@/views/home/index.vue'
 import MenuList from '@/views/menuList/index.vue'
+import SiteList from '@/views/site/index.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -23,6 +26,39 @@ const routes = [
       icon: 'HomeFilled',
       showInMenu: true,
       order: 1
+    }
+  },
+  {
+    path: '/command-center',
+    name: 'CommandCenter',
+    component: Command,
+    meta: {
+      title: '指挥中心',
+      icon: 'DataBoard',
+      showInMenu: true,
+      order: 1.5
+    }
+  },
+  {
+    path: '/customer',
+    name: 'CustomerList',
+    component: CustomerList,
+    meta: {
+      title: '客户管理',
+      icon: 'User',
+      showInMenu: true,
+      order: 2
+    }
+  },
+  {
+    path: '/site',
+    name: 'SiteList',
+    component: SiteList,
+    meta: {
+      title: '驻点管理',
+      icon: 'Location',
+      showInMenu: true,
+      order: 3
     }
   },
   {
@@ -44,7 +80,7 @@ const routes = [
       title: '组件文档',
       icon: 'Document',
       showInMenu: true,
-      order: 2
+      order: 999
     }
   },
   {

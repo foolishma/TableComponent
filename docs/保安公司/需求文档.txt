@@ -1,0 +1,1838 @@
+# 保安公司管理系统 - 完整需求文档
+
+## 一、项目概述
+
+### 1.1 项目背景
+保安公司管理系统是一个综合性的企业管理系统，主要用于管理保安公司的日常运营、人事管理、客户关系、驻点管理、考勤排班等核心业务。
+
+### 1.2 技术栈
+- **前端框架**：Vue 3.5 + Composition API
+- **UI组件库**：Element Plus 2.8.0
+- **状态管理**：Pinia 3.0.4
+- **路由管理**：Vue Router 4.4.0
+- **国际化**：Vue I18n 11.2.2
+- **HTTP请求**：Axios 1.13.2
+- **样式方案**：Tailwind CSS 3.4.0
+- **构建工具**：Vite 5.4.0
+
+### 1.3 核心组件
+- **TableComponent**：通用表格组件（配置文件驱动）
+- **UploadComponent**：文件上传组件（支持图片、附件）
+- **FormDialog**：表单对话框组件（支持新增、编辑）
+
+### 1.4 项目结构
+```
+src/
+├── views/              # 页面视图
+│   ├── home/          # 首页
+│   ├── commandCenter/ # 指挥中心
+│   ├── customer/      # 客户管理
+│   ├── site/          # 驻点管理
+│   └── ...
+├── components/         # 公共组件
+│   ├── TableComponent/ # 表格组件
+│   └── UploadComponent/ # 上传组件
+├── api/                # API接口
+├── hooks/              # 组合式函数
+├── utils/              # 工具函数
+└── store/              # 状态管理
+```
+
+---
+
+## 二、菜单目录结构
+
+### 2.1 一级菜单
+1. **首页** - 数据统计面板
+2. **指挥中心** - 实时监控与调度
+3. **项目运营** - 业务管理模块
+4. **人事管理** - 人员管理模块
+5. **后勤管理** - 资产管理模块
+6. **系统设置** - 系统配置模块
+
+### 2.2 二级菜单（项目运营）
+- 客户管理
+- 驻点管理
+- 排班管理
+- 考勤管理
+- 巡逻管理
+- 督察管理
+- 事件管理
+
+### 2.3 二级菜单（人事管理）
+- 花名册
+- 审批
+- 工资
+
+### 2.4 二级菜单（后勤管理）
+- 资产管理
+
+### 2.5 二级菜单（系统设置）
+- 字典管理
+- 日志管理
+- 业务设置
+- 菜单管理
+- 角色管理
+- 人员管理
+- 部门管理
+
+---
+
+## 三、功能模块详细需求
+
+### 3.1 首页模块
+
+#### 3.1.1 功能概述
+首页是一个数据统计面板，以卡片形式展示各类统计信息和快捷入口。
+
+#### 3.1.2 功能需求
+
+**3.1.2.1 【重要代办】卡片**
+- **功能描述**：统计待处理的重要事项数量
+- **统计项**：
+  - 待入职：待入职人员数量
+  - 今日离职：今日离职人员数量
+  - 即将离职：即将离职人员数量（可配置时间范围，如7天内）
+  - 疑似离职：疑似离职人员数量（根据考勤异常判断）
+  - 未签合同：未签订合同人员数量
+  - 未购买商业保险：未购买商业保险人员数量
+- **交互要求**：
+  - 每个统计项可点击，点击后跳转到对应的列表页面并自动筛选
+  - 数字高亮显示，超过阈值时显示警告颜色
+  - 支持刷新按钮，实时更新统计数据
+
+**3.1.2.2 【办公审批】卡片**
+- **功能描述**：统计待处理的审批事项数量
+- **统计项**：
+  - 我的审批：待我审批的事项数量
+  - 我的申请：我提交的待审批事项数量
+  - 抄送我的：抄送给我的事项数量
+- **交互要求**：
+  - 每个统计项可点击，跳转到审批列表页面并自动筛选
+  - 支持消息提醒（红点提示）
+
+**3.1.2.3 【快捷入口】卡片**
+- **功能描述**：提供常用功能的快速入口
+- **入口项**：
+  - 导入新保安：批量导入保安人员信息
+  - 保安入职：新增保安人员
+  - 算工资：进入工资计算页面
+  - 新建公司成员：新增公司内部员工
+  - 新建驻点：新增驻点信息
+  - 新建客户：新增客户信息
+- **交互要求**：
+  - 每个入口以按钮或卡片形式展示
+  - 点击后打开对应的新增/导入对话框或跳转到对应页面
+  - 支持权限控制，无权限的入口不显示
+
+**3.1.2.4 【考勤】卡片**
+- **功能描述**：展示考勤统计数据
+- **图表类型**：柱状统计图
+- **横坐标**：考勤状态类型
+  - 打开正常
+  - 上报正常
+  - 正常
+  - 迟到
+  - 早退
+  - 迟到且早退
+  - 迟到且缺下班卡
+  - 缺下班卡
+  - 缺勤
+  - 无效出勤
+- **筛选条件**：
+  - 日期筛选：支持切换【今日、昨日、本周、上周、本月、上月】
+  - 驻点筛选：支持选择特定驻点，查看该驻点的考勤统计
+- **交互要求**：
+  - 图表支持交互，鼠标悬停显示具体数值
+  - 支持图表导出（图片格式）
+  - 日期和驻点切换时，图表实时更新
+
+#### 3.1.3 技术实现
+- 使用 Element Plus 的 Card 组件展示各个卡片
+- 使用 ECharts 或类似图表库实现柱状图
+- 统计数据通过 API 接口获取
+- 使用 Pinia 管理统计数据状态
+
+---
+
+### 3.2 指挥中心模块
+
+#### 3.2.1 功能概述
+指挥中心用于实时监控和调度，可能包含地图展示、实时位置、事件监控等功能。
+
+#### 3.2.2 功能需求（待补充）
+- 根据图片内容，指挥中心可能包含：
+  - 地图展示（百度地图/高德地图）
+  - 驻点位置标记
+  - 保安人员实时位置
+  - 事件监控与处理
+  - 实时数据统计
+
+#### 3.2.3 技术实现
+- 集成地图组件（如百度地图、高德地图）
+- WebSocket 实现实时数据推送
+- 使用 Canvas 或 SVG 实现数据可视化
+
+---
+
+### 3.3 客户管理模块
+
+#### 3.3.1 功能概述
+客户管理模块用于管理客户信息，包括客户基本信息、公司信息、开票信息、联系人信息等。
+
+#### 3.3.2 客户管理列表
+
+**3.3.2.1 列表展示**
+- **表格列配置**：
+  - 序号（自动生成）
+  - 客户名称
+  - 客户编码
+  - 客户简称
+  - 客户类型
+  - 所在城市
+  - 客户状态
+  - 驻点数
+  - 创建时间
+  - 操作列（查看、编辑、删除、评价等）
+- **筛选条件**：
+  - 客户名称（输入框）
+  - 客户编码（输入框）
+  - 客户类型（下拉选择）
+  - 客户状态（下拉选择）
+  - 所在城市（下拉选择）
+  - 创建时间（日期范围）
+- **顶部按钮**：
+  - 新增客户（primary）
+  - 导出（success）
+  - 批量删除（danger，需选中行）
+- **操作列按钮**：
+  - 查看（info）
+  - 编辑（primary）
+  - 删除（danger，需确认）
+  - 客户评价（warning）
+
+**3.3.2.2 客户评价功能**
+- **功能描述**：客户可以对驻点和保安进行评价
+- **评价类型**：
+  - 评价驻点：对某个驻点进行评价
+  - 评价保安：对某个保安进行评价
+  - 添加驻点评价：新增驻点评价记录
+  - 添加保安评价：新增保安评价记录
+- **评价内容**：
+  - 评价等级（星级评分，1-5星）
+  - 评价内容（文本输入）
+  - 评价时间（自动记录）
+  - 评价人（当前登录用户）
+- **交互要求**：
+  - 点击"客户评价"按钮，弹出评价对话框
+  - 支持查看历史评价记录
+  - 评价记录以列表形式展示
+
+#### 3.3.3 新增客户功能
+
+**3.3.3.1 表单结构（分步骤）**
+根据图片文件名推断，新增客户表单可能分为多个步骤：
+
+**第一步：基本信息**
+- 客户名称（必填，输入框）
+- 客户编码（必填，输入框，支持自动生成）
+- 客户简称（可选，输入框）
+- 销售部门（下拉选择）
+- 客户类型（下拉选择，必填）
+- 所在城市（级联选择，省-市）
+- 客户状态（下拉选择，默认：正常）
+- 办公地址（输入框）
+- 上级单位（可选，输入框）
+
+**第二步：公司信息**
+- 统一社会信用代码（输入框，支持验证）
+- 公司规模（下拉选择：小型、中型、大型）
+- 成立年份（年份选择器）
+- 公司介绍（文本域，多行输入）
+
+**第三步：开票信息**
+- 发票抬头（输入框）
+- 税号（输入框）
+- 电话（输入框，支持验证）
+- 开票地址（输入框）
+- 开户银行（输入框）
+- 银行账户（输入框）
+- 联行号（输入框）
+- 行业类型（下拉选择）
+- 开票备注（文本域，可选）
+
+**第四步：联系人信息**
+- 办公室号码（输入框）
+- 联系人列表（动态添加）
+  - 联系人姓名（必填）
+  - 性别（下拉选择：男、女）
+  - 联系电话（必填，支持验证）
+  - 操作（删除按钮）
+- 支持添加多个联系人
+
+**第五步：内部备注与驻点信息**
+- 所属部门（下拉选择）
+- 客户经理（下拉选择，从人员列表选择）
+- 客户分级（下拉选择：A级、B级、C级等）
+- 客户状态（下拉选择）
+- 内部备注（文本域，可选）
+- 驻点信息（多选，从驻点列表选择）
+
+**3.3.3.2 表单验证**
+- 必填项验证
+- 格式验证（电话、税号、统一社会信用代码等）
+- 唯一性验证（客户编码、统一社会信用代码）
+
+**3.3.3.3 交互要求**
+- 使用步骤条（Steps）组件展示进度
+- 支持上一步/下一步导航
+- 支持保存草稿
+- 最后一步显示"提交"按钮
+- 提交成功后关闭对话框并刷新列表
+
+#### 3.3.4 编辑客户功能
+- 功能与新增类似，但表单预填充现有数据
+- 支持查看历史修改记录
+- 某些字段可能不允许修改（如客户编码）
+
+#### 3.3.5 删除客户功能
+- 支持单个删除和批量删除
+- 删除前需确认
+- 如果客户下有关联的驻点，需先处理驻点关系
+- 支持软删除（标记为已删除，不物理删除）
+
+#### 3.3.6 技术实现
+- 使用 TableComponent 组件实现列表
+- 使用 FormDialog 组件实现新增/编辑表单
+- 表单使用 Element Plus 的 Form 组件
+- 步骤条使用 Steps 组件
+- 联系人列表使用动态表单
+
+---
+
+### 3.4 驻点管理模块
+
+#### 3.4.1 功能概述
+驻点管理模块用于管理各个驻点的信息，包括驻点基本信息、人员配置、设备信息等。
+
+#### 3.4.2 驻点管理列表
+
+**3.4.2.1 列表展示**
+- **表格列配置**：
+  - 序号（自动生成）
+  - 驻点名称
+  - 驻点编码
+  - 所属客户
+  - 驻点地址
+  - 驻点状态
+  - 保安人数
+  - 创建时间
+  - 操作列（查看、编辑、删除等）
+- **筛选条件**：
+  - 驻点名称（输入框）
+  - 驻点编码（输入框）
+  - 所属客户（下拉选择，支持搜索）
+  - 驻点状态（下拉选择）
+  - 创建时间（日期范围）
+- **顶部按钮**：
+  - 新增驻点（primary）
+  - 导出（success）
+  - 批量删除（danger，需选中行）
+- **操作列按钮**：
+  - 查看（info）
+  - 编辑（primary）
+  - 删除（danger，需确认）
+
+#### 3.4.3 新增驻点功能
+
+**3.4.3.1 表单结构（分步骤）**
+根据图片文件名推断，新增驻点表单可能分为多个步骤：
+
+**第一步：基本信息**
+- 驻点名称（必填，输入框）
+- 驻点编码（必填，输入框，支持自动生成）
+- 所属客户（必填，下拉选择，支持搜索）
+- 驻点地址（必填，输入框，支持地图选择）
+- 详细地址（输入框）
+- 驻点状态（下拉选择，默认：正常）
+- 驻点类型（下拉选择）
+- 联系电话（输入框，支持验证）
+
+**第二步：人员配置**
+- 保安人数（数字输入框）
+- 保安列表（表格展示）
+  - 保安姓名
+  - 工号
+  - 岗位
+  - 联系方式
+  - 操作（移除按钮）
+- 支持从保安花名册中选择保安
+- 支持批量添加保安
+
+**第三步：设备与配置**
+- 设备信息（动态添加）
+  - 设备名称
+  - 设备类型
+  - 设备编号
+  - 安装时间
+  - 操作（删除按钮）
+- 工作制度（下拉选择：24小时、12小时等）
+- 特殊要求（文本域，可选）
+- 备注信息（文本域，可选）
+
+**3.4.3.2 表单验证**
+- 必填项验证
+- 格式验证（电话等）
+- 关联验证（所属客户必须存在）
+
+**3.4.3.3 交互要求**
+- 使用步骤条（Steps）组件展示进度
+- 支持上一步/下一步导航
+- 支持保存草稿
+- 最后一步显示"提交"按钮
+- 提交成功后关闭对话框并刷新列表
+
+#### 3.4.4 编辑驻点功能
+- 功能与新增类似，但表单预填充现有数据
+- 支持查看历史修改记录
+- 某些字段可能不允许修改（如驻点编码）
+
+#### 3.4.5 删除驻点功能
+- 支持单个删除和批量删除
+- 删除前需确认
+- 如果驻点下有关联的保安或设备，需先处理关联关系
+- 支持软删除
+
+#### 3.4.6 技术实现
+- 使用 TableComponent 组件实现列表
+- 使用 FormDialog 组件实现新增/编辑表单
+- 表单使用 Element Plus 的 Form 组件
+- 步骤条使用 Steps 组件
+- 保安列表使用表格组件展示
+
+---
+
+### 3.5 排班管理模块
+
+#### 3.5.1 功能概述
+排班管理模块用于管理保安人员的排班安排，支持按周、按月查看和编辑排班。
+
+#### 3.5.2 功能需求（待补充）
+- 排班日历视图
+- 排班列表视图
+- 批量排班
+- 排班调整
+- 排班统计
+
+---
+
+### 3.6 考勤管理模块
+
+#### 3.6.1 功能概述
+考勤管理模块用于管理保安人员的考勤记录，包括打卡记录、考勤统计、异常处理等。
+
+#### 3.6.2 功能需求（待补充）
+- 考勤记录列表
+- 考勤统计
+- 异常考勤处理
+- 考勤报表导出
+
+---
+
+### 3.7 巡逻管理模块
+
+#### 3.7.1 功能概述
+巡逻管理模块用于管理保安人员的巡逻任务和记录。
+
+#### 3.7.2 功能需求（待补充）
+- 巡逻任务管理
+- 巡逻路线规划
+- 巡逻记录查看
+- 巡逻异常处理
+
+---
+
+### 3.8 督察管理模块
+
+#### 3.8.1 功能概述
+督察管理模块用于管理督察任务和督察记录。
+
+#### 3.8.2 功能需求（待补充）
+- 督察任务管理
+- 督察记录
+- 督察报告
+- 问题整改跟踪
+
+---
+
+### 3.9 事件管理模块
+
+#### 3.9.1 功能概述
+事件管理模块用于管理各类事件，包括突发事件、日常事件等。
+
+#### 3.9.2 功能需求（待补充）
+- 事件列表
+- 事件上报
+- 事件处理
+- 事件统计
+
+---
+
+### 3.10 人事管理模块
+
+#### 3.10.1 花名册
+- 保安人员信息管理
+- 人员档案查看
+- 人员信息维护
+
+#### 3.10.2 审批
+- 请假审批
+- 离职审批
+- 入职审批
+- 其他审批流程
+
+#### 3.10.3 工资
+- 工资计算
+- 工资发放
+- 工资统计
+- 工资报表
+
+---
+
+### 3.11 后勤管理模块
+
+#### 3.11.1 资产管理
+- 资产列表
+- 资产入库
+- 资产出库
+- 资产盘点
+- 资产统计
+
+---
+
+### 3.12 系统设置模块
+
+#### 3.12.1 字典管理
+- 数据字典维护
+- 字典项管理
+- 字典分类管理
+
+#### 3.12.2 日志管理
+- 操作日志查看
+- 登录日志查看
+- 日志导出
+
+#### 3.12.3 业务设置
+- 业务参数配置
+- 系统参数设置
+
+#### 3.12.4 菜单管理
+- 菜单树结构管理
+- 菜单权限配置
+
+#### 3.12.5 角色管理
+- 角色列表
+- 角色权限配置
+- 角色用户管理
+
+#### 3.12.6 人员管理
+- 系统用户管理
+- 用户权限配置
+- 用户角色分配
+
+#### 3.12.7 部门管理
+- 部门树结构管理
+- 部门人员管理
+
+---
+
+## 四、前端开发文档
+
+### 4.1 开发规范
+
+#### 4.1.1 项目结构规范
+- **页面文件位置**：所有路由页面必须放置在 `src/views` 目录下
+- **模块化组织**：按照功能模块创建页面目录，每个模块包含：
+  - `index.vue`：模块主页面文件
+  - `listConfig.js`：列表配置文件（如需要）
+  - `components/`：模块私有组件目录（如需要）
+
+**示例**：创建客户管理页面
+```
+src/views/customer/
+  ├── index.vue          # 客户管理主页面
+  ├── listConfig.js      # 客户列表配置文件
+  └── components/        # 客户管理私有组件
+      └── CustomerForm.vue   # 客户表单组件
+```
+
+#### 4.1.2 文件命名规范
+- **模块文件命名**：采用**小驼峰式命名**（camelCase）
+  - 示例：`customerList.js`、`siteConfig.js`、`menuList.js`
+- **组件文件命名**：采用**大驼峰式命名**（PascalCase）
+  - 示例：`CustomerForm.vue`、`SiteDialog.vue`、`MenuTree.vue`
+- **页面创建格式**：统一按照 `目录【功能/模块名】/index.vue` 格式创建
+  - 示例：`src/views/customer/index.vue`、`src/views/site/index.vue`
+
+#### 4.1.3 组件传值规范
+- **父子组件传值**：一律采用 `v-model` 方式传递
+- **子组件接收**：使用 `defineModel()` 接收实现双向绑定
+- **禁止使用**：任何形式的 `update` 事件和函数
+  - ❌ 禁止：`@update:xxx`、`emit('update:xxx')`、`handleUpdate` 等
+  - ✅ 正确：`v-model:xxx="value"` + `defineModel('xxx')`
+
+**示例**：
+```vue
+<!-- 父组件 -->
+<ChildComponent v-model:user="userData" />
+
+<!-- 子组件 -->
+<script setup>
+const user = defineModel('user', {
+  type: Object,
+  required: true
+})
+</script>
+```
+
+#### 4.1.4 Vue 文件编写规范
+- **语法形式**：所有 Vue 文件必须采用 `<script setup>` 语法糖形式编写代码
+- **禁止使用**：Options API 和普通 `<script>` 标签
+
+#### 4.1.5 全局文件组织规范
+- **工具函数**：放置在 `src/utils/` 目录下
+  - 示例：`src/utils/format.js`、`src/utils/validate.js`
+- **Hook 文件**：统一放置在 `src/hooks/` 目录下
+  - 示例：`src/hooks/useTable.js`、`src/hooks/useForm.js`
+- **公共组件**：放置在 `src/components/` 目录下
+  - 示例：`src/components/TableComponent/`、`src/components/FormDialog/`
+- **API 封装**：统一放置在 `src/api/` 目录下，按照页面路径结构创建文件
+  - **规则**：
+    - 单层模块：`src/api/customer.js`（对应 `src/views/customer/`）
+    - 多层模块：`src/api/admin/user.js`（对应 `src/views/admin/user/`）
+  - **示例**：
+    - 客户模块 → `src/api/customer.js`
+    - 驻点模块 → `src/api/site.js`
+    - 订单模块 → `src/api/order.js`
+
+#### 4.1.6 列表页开发规范
+- **默认规则**：所有模块的列表页或新增列表页，除非特殊标注，否则一律使用 `src/components/TableComponent/index.vue` 组件实现
+- **特殊情况**：如需自定义列表组件，必须在项目文档中明确标注原因
+
+**示例**：
+```vue
+<template>
+  <TableComponent :config="tableConfig" :function-map="functionMap" />
+</template>
+
+<script setup>
+import TableComponent from '@/components/TableComponent/index.vue'
+import tableConfig from './listConfig.js'
+</script>
+```
+
+#### 4.1.7 按钮 ID 命名规范
+- **命名格式**：`功能菜单编码:功能按钮编码`
+- **命名规则**：
+  - 功能菜单编码：使用小驼峰命名，对应列表页面的功能模块名称
+  - 功能按钮编码：使用小驼峰命名，描述按钮的具体功能
+  - 使用冒号（`:`）分隔菜单编码和按钮编码
+
+**示例**：
+```javascript
+// 客户管理列表页面（customerList）的按钮配置
+{
+  // 操作列按钮
+  buttons: [
+    {
+      label: '编辑',
+      id: 'customerList:edit',      // 编辑按钮
+      funcName: 'handleEdit'
+    },
+    {
+      label: '删除',
+      id: 'customerList:del',       // 单个删除按钮
+      funcName: 'handleDelete'
+    },
+    {
+      label: '查看',
+      id: 'customerList:view',      // 查看按钮
+      funcName: 'handleView'
+    },
+    {
+      label: '客户评价',
+      id: 'customerList:evaluate',  // 客户评价按钮
+      funcName: 'handleEvaluate'
+    }
+  ],
+
+  // 顶部按钮
+  topButtons: [
+    {
+      label: '新增客户',
+      id: 'customerList:add',       // 新增按钮
+      funcName: 'handleAdd'
+    },
+    {
+      label: '批量删除',
+      id: 'customerList:batchDel',  // 批量删除按钮
+      funcName: 'handleBatchDelete'
+    }
+  ]
+}
+```
+
+---
+
+### 4.2 列表页开发示例
+
+#### 4.2.1 客户管理列表页开发
+
+**文件结构**：
+```
+src/views/customer/
+  ├── index.vue          # 主页面
+  └── listConfig.js      # 列表配置
+```
+
+**listConfig.js**：
+```javascript
+/**
+ * 客户管理列表配置文件
+ */
+export default {
+  // API 配置
+  api: {
+    url: '/api/customer/list',
+    method: 'get'
+  },
+
+  // 表格配置
+  tableConfig: {
+    stripe: true,
+    border: true,
+    height: 'auto',
+    maxHeight: 600,
+    rowKey: 'id',
+    autoHeight: true,
+    showPagination: true,
+    showIndex: true,
+    showAction: true,
+
+    // 行选择配置
+    selection: {
+      enabled: true,
+      type: 'multiple',
+      rowClickSelect: true,
+      reserveSelection: true
+    },
+
+    // 顶部按钮配置
+    topButtons: [
+      {
+        label: '新增客户',
+        type: 'primary',
+        id: 'customerList:add',
+        funcName: 'handleAdd',
+        icon: 'Plus'
+      },
+      {
+        label: '导出',
+        type: 'success',
+        id: 'customerList:export',
+        funcName: 'handleExport',
+        icon: 'Download'
+      },
+      {
+        label: '批量删除',
+        type: 'danger',
+        id: 'customerList:batchDel',
+        funcName: 'handleBatchDelete',
+        icon: 'Delete'
+      }
+    ]
+  },
+
+  // 表格列配置
+  columns: [
+    {
+      prop: 'customerName',
+      label: '客户名称',
+      minWidth: 150,
+      showOverflowTooltip: true
+    },
+    {
+      prop: 'customerCode',
+      label: '客户编码',
+      width: 120
+    },
+    {
+      prop: 'customerShortName',
+      label: '客户简称',
+      width: 120
+    },
+    {
+      prop: 'customerType',
+      label: '客户类型',
+      width: 100,
+      formatter: (row) => {
+        // 根据字典值格式化显示
+        return row.customerTypeName || row.customerType
+      }
+    },
+    {
+      prop: 'city',
+      label: '所在城市',
+      width: 120
+    },
+    {
+      prop: 'status',
+      label: '客户状态',
+      width: 100,
+      formatter: (row) => {
+        return row.statusName || row.status
+      }
+    },
+    {
+      prop: 'siteCount',
+      label: '驻点数',
+      width: 80,
+      align: 'center'
+    },
+    {
+      prop: 'createTime',
+      label: '创建时间',
+      width: 180,
+      sortable: true
+    },
+    {
+      prop: 'actions',
+      label: '操作',
+      type: 'action',
+      fixed: 'right',
+      width: 250,
+      buttons: [
+        {
+          label: '查看',
+          type: 'info',
+          id: 'customerList:view',
+          funcName: 'handleView',
+          icon: 'View',
+          size: 'small'
+        },
+        {
+          label: '编辑',
+          type: 'primary',
+          id: 'customerList:edit',
+          funcName: 'handleEdit',
+          icon: 'Edit',
+          size: 'small'
+        },
+        {
+          label: '客户评价',
+          type: 'warning',
+          id: 'customerList:evaluate',
+          funcName: 'handleEvaluate',
+          icon: 'Star',
+          size: 'small'
+        },
+        {
+          label: '删除',
+          type: 'danger',
+          id: 'customerList:del',
+          funcName: 'handleDelete',
+          icon: 'Delete',
+          size: 'small',
+          confirm: {
+            title: '确认删除',
+            message: '删除后不可恢复，是否继续？',
+            type: 'warning'
+          }
+        }
+      ]
+    }
+  ],
+
+  // 查询条件配置
+  queryConditions: [
+    {
+      prop: 'customerName',
+      label: '客户名称',
+      placeholder: '请输入客户名称',
+      type: 'input'
+    },
+    {
+      prop: 'customerCode',
+      label: '客户编码',
+      placeholder: '请输入客户编码',
+      type: 'input'
+    },
+    {
+      prop: 'customerType',
+      label: '客户类型',
+      placeholder: '请选择客户类型',
+      type: 'select',
+      dict: 'customerType',
+      clearable: true
+    },
+    {
+      prop: 'status',
+      label: '客户状态',
+      placeholder: '请选择客户状态',
+      type: 'select',
+      dict: 'customerStatus',
+      clearable: true
+    },
+    {
+      prop: 'city',
+      label: '所在城市',
+      placeholder: '请选择城市',
+      type: 'select',
+      dict: 'city',
+      clearable: true
+    },
+    {
+      prop: 'createTime',
+      label: '创建时间',
+      type: 'daterange',
+      span: 12,
+      startPlaceholder: '开始日期',
+      endPlaceholder: '结束日期',
+      format: 'YYYY-MM-DD',
+      valueFormat: 'YYYY-MM-DD'
+    }
+  ]
+}
+```
+
+**index.vue**：
+```vue
+<template>
+  <div class="customer-list-page">
+    <TableComponent :config="tableConfig" :function-map="functionMap" />
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import TableComponent from '@/components/TableComponent/index.vue'
+import tableConfig from './listConfig.js'
+import * as customerApi from '@/api/customer'
+
+const router = useRouter()
+
+// 函数映射对象
+const functionMap = {
+  // 顶部按钮函数
+  handleAdd: () => {
+    // 跳转到新增页面或打开新增对话框
+    router.push('/customer/add')
+    // 或打开对话框
+    // showAddDialog.value = true
+  },
+
+  handleExport: async () => {
+    try {
+      await customerApi.exportCustomer()
+      ElMessage.success('导出成功')
+    } catch (error) {
+      ElMessage.error('导出失败')
+    }
+  },
+
+  handleBatchDelete: async (selectedRows) => {
+    if (!selectedRows || selectedRows.length === 0) {
+      ElMessage.warning('请先选择要删除的数据')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要删除选中的 ${selectedRows.length} 条数据吗？`,
+        '批量删除确认',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+
+      const ids = selectedRows.map(row => row.id)
+      await customerApi.batchDeleteCustomer(ids)
+      ElMessage.success('批量删除成功')
+      // 刷新列表
+      window.location.reload()
+    } catch (error) {
+      if (error !== 'cancel') {
+        ElMessage.error('批量删除失败')
+      }
+    }
+  },
+
+  // 操作列按钮函数
+  handleView: (row) => {
+    router.push(`/customer/detail/${row.id}`)
+  },
+
+  handleEdit: (row) => {
+    router.push(`/customer/edit/${row.id}`)
+  },
+
+  handleEvaluate: (row) => {
+    // 打开客户评价对话框
+    // showEvaluateDialog.value = true
+    // currentCustomer.value = row
+    ElMessage.info('打开客户评价对话框')
+  },
+
+  handleDelete: async (row) => {
+    try {
+      await ElMessageBox.confirm(
+        `确定要删除客户 "${row.customerName}" 吗？`,
+        '删除确认',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+
+      await customerApi.deleteCustomer(row.id)
+      ElMessage.success('删除成功')
+      // 刷新列表
+      window.location.reload()
+    } catch (error) {
+      if (error !== 'cancel') {
+        ElMessage.error('删除失败')
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.customer-list-page {
+  padding: 20px;
+}
+</style>
+```
+
+---
+
+### 4.3 API 接口规范
+
+#### 4.3.1 API 文件组织
+- **位置**：`src/api/` 目录下
+- **命名**：与页面模块名称对应
+- **示例**：
+  - 客户管理 → `src/api/customer.js`
+  - 驻点管理 → `src/api/site.js`
+
+#### 4.3.2 API 接口示例
+
+**src/api/customer.js**：
+```javascript
+import request from '@/utils/request'
+
+/**
+ * 获取客户列表
+ */
+export function getCustomerList(params) {
+  return request({
+    url: '/api/customer/list',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 获取客户详情
+ */
+export function getCustomerDetail(id) {
+  return request({
+    url: `/api/customer/${id}`,
+    method: 'get'
+  })
+}
+
+/**
+ * 新增客户
+ */
+export function addCustomer(data) {
+  return request({
+    url: '/api/customer',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 更新客户
+ */
+export function updateCustomer(id, data) {
+  return request({
+    url: `/api/customer/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 删除客户
+ */
+export function deleteCustomer(id) {
+  return request({
+    url: `/api/customer/${id}`,
+    method: 'delete'
+  })
+}
+
+/**
+ * 批量删除客户
+ */
+export function batchDeleteCustomer(ids) {
+  return request({
+    url: '/api/customer/batch',
+    method: 'delete',
+    data: { ids }
+  })
+}
+
+/**
+ * 导出客户
+ */
+export function exportCustomer(params) {
+  return request({
+    url: '/api/customer/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}
+
+/**
+ * 获取客户评价列表
+ */
+export function getCustomerEvaluations(customerId) {
+  return request({
+    url: `/api/customer/${customerId}/evaluations`,
+    method: 'get'
+  })
+}
+
+/**
+ * 添加客户评价
+ */
+export function addCustomerEvaluation(data) {
+  return request({
+    url: '/api/customer/evaluation',
+    method: 'post',
+    data
+  })
+}
+```
+
+---
+
+### 4.4 表单开发示例
+
+#### 4.4.1 新增客户表单（分步骤）
+
+**components/CustomerForm.vue**：
+```vue
+<template>
+  <el-dialog
+    v-model="visible"
+    :title="isEdit ? '编辑客户' : '新增客户'"
+    width="800px"
+    :close-on-click-modal="false"
+    @close="handleClose"
+  >
+    <el-steps :active="currentStep" finish-status="success" align-center>
+      <el-step title="基本信息" />
+      <el-step title="公司信息" />
+      <el-step title="开票信息" />
+      <el-step title="联系人信息" />
+      <el-step title="内部备注与驻点" />
+    </el-steps>
+
+    <el-form
+      ref="formRef"
+      :model="formData"
+      :rules="currentStepRules"
+      label-width="120px"
+      class="mt-6"
+    >
+      <!-- 第一步：基本信息 -->
+      <div v-show="currentStep === 0">
+        <el-form-item label="客户名称" prop="customerName">
+          <el-input v-model="formData.customerName" placeholder="请输入客户名称" />
+        </el-form-item>
+        <el-form-item label="客户编码" prop="customerCode">
+          <el-input v-model="formData.customerCode" placeholder="请输入客户编码">
+            <template #append>
+              <el-button @click="generateCode">自动生成</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <!-- 其他字段... -->
+      </div>
+
+      <!-- 第二步：公司信息 -->
+      <div v-show="currentStep === 1">
+        <el-form-item label="统一社会信用代码" prop="creditCode">
+          <el-input v-model="formData.creditCode" placeholder="请输入统一社会信用代码" />
+        </el-form-item>
+        <!-- 其他字段... -->
+      </div>
+
+      <!-- 其他步骤... -->
+    </el-form>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="handleClose">取消</el-button>
+        <el-button v-if="currentStep > 0" @click="prevStep">上一步</el-button>
+        <el-button
+          v-if="currentStep < 4"
+          type="primary"
+          @click="nextStep"
+        >
+          下一步
+        </el-button>
+        <el-button
+          v-else
+          type="primary"
+          :loading="submitting"
+          @click="handleSubmit"
+        >
+          提交
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
+</template>
+
+<script setup>
+import { ref, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import * as customerApi from '@/api/customer'
+
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  },
+  customerId: {
+    type: [String, Number],
+    default: null
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'success'])
+
+const visible = defineModel('modelValue', {
+  type: Boolean,
+  default: false
+})
+
+const formRef = ref(null)
+const currentStep = ref(0)
+const submitting = ref(false)
+const isEdit = computed(() => !!props.customerId)
+
+const formData = ref({
+  // 基本信息
+  customerName: '',
+  customerCode: '',
+  customerShortName: '',
+  salesDepartment: '',
+  customerType: '',
+  city: '',
+  status: 'normal',
+  officeAddress: '',
+  parentUnit: '',
+  // 公司信息
+  creditCode: '',
+  companyScale: '',
+  establishYear: '',
+  companyIntroduction: '',
+  // 开票信息
+  invoiceTitle: '',
+  taxNumber: '',
+  phone: '',
+  invoiceAddress: '',
+  bankName: '',
+  bankAccount: '',
+  bankCode: '',
+  industryType: '',
+  invoiceRemark: '',
+  // 联系人信息
+  officePhone: '',
+  contacts: [],
+  // 内部备注与驻点
+  department: '',
+  customerManager: '',
+  customerLevel: '',
+  internalRemark: '',
+  sites: []
+})
+
+// 表单验证规则
+const rules = {
+  customerName: [{ required: true, message: '请输入客户名称', trigger: 'blur' }],
+  customerCode: [{ required: true, message: '请输入客户编码', trigger: 'blur' }],
+  // 其他规则...
+}
+
+const currentStepRules = computed(() => {
+  // 根据当前步骤返回对应的验证规则
+  if (currentStep.value === 0) {
+    return {
+      customerName: rules.customerName,
+      customerCode: rules.customerCode
+    }
+  }
+  // 其他步骤的规则...
+  return {}
+})
+
+// 监听 visible，加载数据
+watch(visible, (val) => {
+  if (val && props.customerId) {
+    loadCustomerData()
+  } else if (val) {
+    resetForm()
+  }
+})
+
+// 加载客户数据
+const loadCustomerData = async () => {
+  try {
+    const res = await customerApi.getCustomerDetail(props.customerId)
+    formData.value = res.data
+  } catch (error) {
+    ElMessage.error('加载客户数据失败')
+  }
+}
+
+// 重置表单
+const resetForm = () => {
+  formData.value = {
+    // 重置所有字段...
+  }
+  currentStep.value = 0
+  formRef.value?.resetFields()
+}
+
+// 生成编码
+const generateCode = () => {
+  // 生成逻辑
+  formData.value.customerCode = `CUST${Date.now()}`
+}
+
+// 上一步
+const prevStep = () => {
+  if (currentStep.value > 0) {
+    currentStep.value--
+  }
+}
+
+// 下一步
+const nextStep = async () => {
+  try {
+    await formRef.value?.validate()
+    if (currentStep.value < 4) {
+      currentStep.value++
+    }
+  } catch (error) {
+    ElMessage.warning('请完善当前步骤的信息')
+  }
+}
+
+// 提交
+const handleSubmit = async () => {
+  try {
+    await formRef.value?.validate()
+    submitting.value = true
+
+    if (isEdit.value) {
+      await customerApi.updateCustomer(props.customerId, formData.value)
+      ElMessage.success('更新成功')
+    } else {
+      await customerApi.addCustomer(formData.value)
+      ElMessage.success('新增成功')
+    }
+
+    emit('success')
+    handleClose()
+  } catch (error) {
+    ElMessage.error(isEdit.value ? '更新失败' : '新增失败')
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 关闭
+const handleClose = () => {
+  visible.value = false
+  resetForm()
+}
+</script>
+```
+
+---
+
+### 4.5 首页开发示例
+
+#### 4.5.1 首页组件结构
+
+**src/views/home/index.vue**：
+```vue
+<template>
+  <div class="home-page">
+    <el-row :gutter="20">
+      <!-- 重要代办卡片 -->
+      <el-col :span="24" :md="12" :lg="8">
+        <el-card class="mb-4">
+          <template #header>
+            <div class="card-header">
+              <span>重要代办</span>
+              <el-button text @click="refreshTodo">刷新</el-button>
+            </div>
+          </template>
+          <div class="todo-list">
+            <div
+              v-for="item in todoList"
+              :key="item.key"
+              class="todo-item"
+              @click="handleTodoClick(item)"
+            >
+              <span class="todo-label">{{ item.label }}</span>
+              <span class="todo-value" :class="{ 'warning': item.count > item.threshold }">
+                {{ item.count }}
+              </span>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+
+      <!-- 办公审批卡片 -->
+      <el-col :span="24" :md="12" :lg="8">
+        <el-card class="mb-4">
+          <template #header>
+            <div class="card-header">
+              <span>办公审批</span>
+            </div>
+          </template>
+          <div class="approval-list">
+            <div
+              v-for="item in approvalList"
+              :key="item.key"
+              class="approval-item"
+              @click="handleApprovalClick(item)"
+            >
+              <span class="approval-label">{{ item.label }}</span>
+              <el-badge :value="item.count" class="approval-badge">
+                <span class="approval-value">{{ item.count }}</span>
+              </el-badge>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+
+      <!-- 快捷入口卡片 -->
+      <el-col :span="24" :md="12" :lg="8">
+        <el-card class="mb-4">
+          <template #header>
+            <span>快捷入口</span>
+          </template>
+          <div class="quick-actions">
+            <el-button
+              v-for="action in quickActions"
+              :key="action.key"
+              :type="action.type"
+              :icon="action.icon"
+              @click="handleQuickAction(action)"
+            >
+              {{ action.label }}
+            </el-button>
+          </div>
+        </el-card>
+      </el-col>
+
+      <!-- 考勤统计卡片 -->
+      <el-col :span="24">
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>考勤统计</span>
+              <div class="header-actions">
+                <el-date-picker
+                  v-model="attendanceDate"
+                  type="daterange"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  @change="handleDateChange"
+                />
+                <el-select
+                  v-model="selectedSite"
+                  placeholder="选择驻点"
+                  clearable
+                  @change="handleSiteChange"
+                >
+                  <el-option
+                    v-for="site in siteList"
+                    :key="site.id"
+                    :label="site.name"
+                    :value="site.id"
+                  />
+                </el-select>
+              </div>
+            </div>
+          </template>
+          <div ref="chartRef" class="chart-container"></div>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import * as echarts from 'echarts'
+import * as homeApi from '@/api/home'
+
+const router = useRouter()
+
+const todoList = ref([
+  { key: 'pendingEntry', label: '待入职', count: 0, threshold: 10, route: '/personnel/pending' },
+  { key: 'todayLeave', label: '今日离职', count: 0, threshold: 5, route: '/personnel/leave' },
+  { key: 'soonLeave', label: '即将离职', count: 0, threshold: 5, route: '/personnel/soon-leave' },
+  { key: 'suspectedLeave', label: '疑似离职', count: 0, threshold: 3, route: '/personnel/suspected' },
+  { key: 'noContract', label: '未签合同', count: 0, threshold: 10, route: '/personnel/no-contract' },
+  { key: 'noInsurance', label: '未购买商业保险', count: 0, threshold: 5, route: '/personnel/no-insurance' }
+])
+
+const approvalList = ref([
+  { key: 'myApproval', label: '我的审批', count: 0, route: '/approval/my-approval' },
+  { key: 'myApplication', label: '我的申请', count: 0, route: '/approval/my-application' },
+  { key: 'ccToMe', label: '抄送我的', count: 0, route: '/approval/cc-to-me' }
+])
+
+const quickActions = ref([
+  { key: 'import', label: '导入新保安', type: 'primary', icon: 'Upload', route: '/personnel/import' },
+  { key: 'entry', label: '保安入职', type: 'success', icon: 'User', route: '/personnel/entry' },
+  { key: 'salary', label: '算工资', type: 'warning', icon: 'Money', route: '/salary/calculate' },
+  { key: 'member', label: '新建公司成员', type: 'info', icon: 'UserFilled', route: '/personnel/member/add' },
+  { key: 'site', label: '新建驻点', type: 'primary', icon: 'Location', route: '/site/add' },
+  { key: 'customer', label: '新建客户', type: 'success', icon: 'OfficeBuilding', route: '/customer/add' }
+])
+
+const attendanceDate = ref(null)
+const selectedSite = ref(null)
+const siteList = ref([])
+const chartRef = ref(null)
+let chartInstance = null
+
+// 加载统计数据
+const loadStatistics = async () => {
+  try {
+    const res = await homeApi.getStatistics()
+    // 更新统计数据
+    todoList.value.forEach(item => {
+      item.count = res.data.todo[item.key] || 0
+    })
+    approvalList.value.forEach(item => {
+      item.count = res.data.approval[item.key] || 0
+    })
+  } catch (error) {
+    console.error('加载统计数据失败', error)
+  }
+}
+
+// 加载考勤数据
+const loadAttendanceData = async () => {
+  try {
+    const params = {
+      dateRange: attendanceDate.value,
+      siteId: selectedSite.value
+    }
+    const res = await homeApi.getAttendanceStatistics(params)
+    updateChart(res.data)
+  } catch (error) {
+    console.error('加载考勤数据失败', error)
+  }
+}
+
+// 初始化图表
+const initChart = () => {
+  if (!chartRef.value) return
+  chartInstance = echarts.init(chartRef.value)
+
+  const option = {
+    title: {
+      text: '考勤统计',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: ['打开正常', '上报正常', '正常', '迟到', '早退', '迟到且早退', '迟到且缺下班卡', '缺下班卡', '缺勤', '无效出勤']
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: '人数',
+        type: 'bar',
+        data: []
+      }
+    ]
+  }
+
+  chartInstance.setOption(option)
+
+  // 响应式调整
+  window.addEventListener('resize', () => {
+    chartInstance?.resize()
+  })
+}
+
+// 更新图表
+const updateChart = (data) => {
+  if (!chartInstance) return
+
+  const option = {
+    series: [
+      {
+        data: [
+          data.openNormal || 0,
+          data.reportNormal || 0,
+          data.normal || 0,
+          data.late || 0,
+          data.earlyLeave || 0,
+          data.lateAndEarlyLeave || 0,
+          data.lateAndNoEndCard || 0,
+          data.noEndCard || 0,
+          data.absent || 0,
+          data.invalid || 0
+        ]
+      }
+    ]
+  }
+
+  chartInstance.setOption(option)
+}
+
+// 处理代办点击
+const handleTodoClick = (item) => {
+  router.push(item.route)
+}
+
+// 处理审批点击
+const handleApprovalClick = (item) => {
+  router.push(item.route)
+}
+
+// 处理快捷入口点击
+const handleQuickAction = (action) => {
+  router.push(action.route)
+}
+
+// 处理日期变化
+const handleDateChange = () => {
+  loadAttendanceData()
+}
+
+// 处理驻点变化
+const handleSiteChange = () => {
+  loadAttendanceData()
+}
+
+// 刷新代办
+const refreshTodo = () => {
+  loadStatistics()
+}
+
+onMounted(() => {
+  loadStatistics()
+  loadAttendanceData()
+  initChart()
+})
+
+onUnmounted(() => {
+  chartInstance?.dispose()
+  window.removeEventListener('resize', () => {})
+})
+</script>
+
+<style scoped>
+.home-page {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.todo-list,
+.approval-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.todo-item,
+.approval-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.todo-item:hover,
+.approval-item:hover {
+  background-color: #f5f7fa;
+}
+
+.todo-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #409eff;
+}
+
+.todo-value.warning {
+  color: #f56c6c;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 400px;
+}
+</style>
+```
+
+---
+
+## 五、开发注意事项
+
+### 5.1 代码规范
+- 所有 Vue 文件必须使用 `<script setup>` 语法
+- 组件传值必须使用 `v-model` 和 `defineModel()`
+- 按钮 ID 必须遵循命名规范：`功能菜单编码:功能按钮编码`
+- 列表页必须使用 TableComponent 组件（除非特殊说明）
+
+### 5.2 功能完整性
+- 所有功能必须保持完整性，不能简化或删减
+- 表单验证必须完整
+- 错误处理必须完善
+- 边界情况必须考虑
+
+### 5.3 性能优化
+- 大数据量列表使用分页
+- 图表数据按需加载
+- 合理使用缓存
+- 避免不必要的重复请求
+
+### 5.4 用户体验
+- 操作反馈及时（加载状态、成功提示、错误提示）
+- 表单验证提示清晰
+- 删除操作需确认
+- 支持快捷键操作
+
+---
+
+## 六、待补充功能
+
+以下功能模块需要根据实际业务需求补充详细需求：
+
+1. **指挥中心**：地图展示、实时监控、事件处理
+2. **排班管理**：排班日历、批量排班、排班调整
+3. **考勤管理**：考勤记录、考勤统计、异常处理
+4. **巡逻管理**：巡逻任务、巡逻路线、巡逻记录
+5. **督察管理**：督察任务、督察记录、问题整改
+6. **事件管理**：事件上报、事件处理、事件统计
+7. **人事管理**：花名册、审批流程、工资计算
+8. **后勤管理**：资产管理
+9. **系统设置**：各配置模块的详细功能
+
+---
+
+## 七、附录
+
+### 7.1 字典编码参考
+- `customerType`：客户类型
+- `customerStatus`：客户状态
+- `siteStatus`：驻点状态
+- `city`：城市列表
+- `companyScale`：公司规模
+- `industryType`：行业类型
+- `customerLevel`：客户分级
+
+### 7.2 API 响应格式规范
+```javascript
+// 列表接口响应格式
+{
+  code: 200,
+  message: 'success',
+  data: {
+    list: [],      // 或 records、data
+    total: 0,
+    page: 1,
+    pageSize: 10
+  }
+}
+
+// 详情接口响应格式
+{
+  code: 200,
+  message: 'success',
+  data: {}
+}
+
+// 操作接口响应格式
+{
+  code: 200,
+  message: '操作成功',
+  data: null
+}
+```
+
+### 7.3 错误码规范
+- `200`：成功
+- `400`：请求参数错误
+- `401`：未授权
+- `403`：无权限
+- `404`：资源不存在
+- `500`：服务器错误
+
+---
+
+**文档版本**：v1.0.0
+**创建日期**：2025年1月
+**最后更新**：2025年1月
+**维护者**：项目开发团队
